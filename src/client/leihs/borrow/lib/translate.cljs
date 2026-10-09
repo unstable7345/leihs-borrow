@@ -18,6 +18,7 @@
                      :de-CH "de-CH"
                      :gsw-CH "de-CH"
                      :fr-CH "fr-CH"
+                     :es "es"
                      "en-GB")))
 
 (reg-sub ::date-locale
@@ -26,6 +27,7 @@
                      :de-CH date-locale/de
                      :gsw-CH date-locale/de
                      :fr-CH date-locale/frCH
+                     :es date-locale/es
                      date-locale/enGB)))
 
 (defn translate [message locale values]
