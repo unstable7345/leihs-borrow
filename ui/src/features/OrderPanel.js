@@ -58,7 +58,8 @@ const OrderPanel = ({
 }) => {
   const { label } = txt
 
-  const today = startOfDay(now ? now : new Date())
+  const currentTime = now ? now : new Date()
+  const today = startOfDay(currentTime)
   const maxDate = maxDateTotal ? startOfDay(maxDateTotal) : addMonths(today, 20 * 12)
 
   const [quantity, setQuantity] = useState(initialQuantity)
@@ -149,6 +150,9 @@ const OrderPanel = ({
     }
     if (selectedTimeSlot && !isSameDay(selectedRange.startDate, selectedRange.endDate)) {
       return { dateRangeErrors: [t(txt.validate, 'time-slot-single-day', locale)] }
+    }
+    if (selectedTimeSlot && isTimeSlotOver(selectedRange.startDate, selectedTimeSlot, currentTime)) {
+      return { dateRangeErrors: [t(txt.validate, 'time-slot-over', locale)] }
     }
     const dateRangeErrors = validateDateRange(
       selectedRange,
@@ -326,7 +330,11 @@ const OrderPanel = ({
                     >
                       <option value="">{t(label, 'whole-day', locale)}</option>
                       {timeSlots.map(({ id, name, startTime, endTime }) => (
-                        <option key={id} value={timeSlotKey({ startTime, endTime })}>
+                        <option
+                          key={id}
+                          value={timeSlotKey({ startTime, endTime })}
+                          disabled={isTimeSlotOver(selectedRange.startDate, { endTime }, currentTime)}
+                        >
                           {t(label, 'time-slot-option', locale, { name, startTime, endTime })}
                         </option>
                       ))}
@@ -398,6 +406,13 @@ export default OrderPanel
 
 function timeSlotKey(timeSlot) {
   return timeSlot && timeSlot.startTime ? `${timeSlot.startTime}-${timeSlot.endTime}` : ''
+}
+
+// Whether the time slot of the given day has already ended
+function isTimeSlotOver(day, { endTime }, currentTime) {
+  const [hours, minutes] = endTime.split(':').map(Number)
+  const end = new Date(day.getFullYear(), day.getMonth(), day.getDate(), hours, minutes)
+  return !isBefore(currentTime, end)
 }
 
 function getDateRangePickerConstraints(poolAvailability, today, wantedQuantity) {

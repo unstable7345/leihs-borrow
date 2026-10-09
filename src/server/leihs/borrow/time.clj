@@ -21,3 +21,12 @@
   (java-time/after?
    (java-time/local-date)
    (java-time/local-date DateTimeFormatter/ISO_LOCAL_DATE (.toString date))))
+
+(defn time-slot-ended?
+  "Whether the time slot ending at `end-time` (\"HH:mm[:ss]\") of `date` is
+  already over (in the time zone of the settings)."
+  [tx date end-time]
+  (let [now* (now tx)
+        date* (java.time.LocalDate/parse (str date))
+        end-time* (java.time.LocalTime/parse (str end-time))]
+    (not (java-time/after? (java-time/local-date-time date* end-time*) now*))))

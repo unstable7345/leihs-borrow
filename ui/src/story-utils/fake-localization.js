@@ -26,6 +26,7 @@ export const orderPanelTexts = {
     'invalid-end-date': { 'de-CH': 'Ungültiges Enddatum' },
     'start-after-end': { 'de-CH': 'Enddatum muss nach Beginndatum sein' },
     'time-slot-single-day': { 'de-CH': 'Ein Zeitfenster kann nur für einen einzelnen Tag reserviert werden' },
+    'time-slot-over': { 'de-CH': 'Dieses Zeitfenster ist bereits vorbei' },
     'end-date-too-late': { 'de-CH': 'Datum darf nicht nach {maxDate, date, small} sein' },
 
     'start-date-in-past': { 'de-CH': 'Abholdatum liegt in der Vergangenheit' },

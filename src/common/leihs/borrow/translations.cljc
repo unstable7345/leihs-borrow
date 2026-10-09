@@ -97,6 +97,11 @@
                  :en-GB "A time slot can only be reserved for a single day"
                  :es "Una franja horaria solo se puede reservar para un único día"
                  :fr-CH "Un créneau horaire ne peut être réservé que pour une seule journée"}
+                :time-slot-over
+                {:de-CH "Dieses Zeitfenster ist bereits vorbei"
+                 :en-GB "This time slot is already over"
+                 :es "Esta franja horaria ya terminó"
+                 :fr-CH "Ce créneau horaire est déjà passé"}
                 :start-after-end
                 {:de-CH "Enddatum muss nach Beginndatum sein"
                  :en-GB "End date must be after start date"

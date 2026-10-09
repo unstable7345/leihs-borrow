@@ -142,7 +142,9 @@
                                          first
                                          second)]
                        (not (some #{(:inventory_pool_id r)} pool-ids)))
-                     (not (complies-with-max-reservation-time? tx r)))
+                     (not (complies-with-max-reservation-time? tx r))
+                     (and (:start_time r)
+                          (time/time-slot-ended? tx (:start_date r) (:end_time r))))
                  (conj r)))
              []
              rs))))
@@ -397,7 +399,9 @@
     (when (not= start-date end-date)
       (raise "A time slot can only be reserved for a single day."))
     (when-not (time-slots/offered? tx pool-id start-time end-time)
-      (raise "The inventory pool does not offer this time slot."))))
+      (raise "The inventory pool does not offer this time slot."))
+    (when (time/time-slot-ended? tx start-date end-time)
+      (raise "This time slot is already over."))))
 
 (defn create
   [{{tx :tx {auth-user-id :id} :authenticated-entity} :request
