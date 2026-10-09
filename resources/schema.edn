@@ -1,6 +1,7 @@
 {:scalars {:UUID {:parse :uuid-parse :serialize :uuid-serialize}
            :DateTime {:parse :date-time-parse :serialize :date-time-serialize}
            :Date {:parse :date-parse :serialize :date-serialize}
+           :Time {:parse :time-parse :serialize :time-serialize}
            :NonEmptyText {:parse :non-empty-text-parse
                           :serialize :non-empty-text-serialize}}
 
@@ -68,8 +69,15 @@
                                                    :resolve :inventory-pool-has-templates}
                                     :holidays {:type (list :Holiday)
                                                :resolve :holidays}
+                                    :timeSlots {:type (list (non-null :TimeSlot))
+                                                :description "Time slots for same-day reservations. Empty when the pool only offers whole days."
+                                                :resolve :time-slots}
                                     :workdays {:type (list :Workday)
                                                :resolve :workdays}}}
+           :TimeSlot {:fields {:id {:type (non-null :UUID)}
+                               :name {:type (non-null String)}
+                               :startTime {:type (non-null :Time)}
+                               :endTime {:type (non-null :Time)}}}
            :Holiday {:fields {:startDate {:type :Date}
                               :endDate {:type :Date}
                               :name {:type (non-null String)}}}
@@ -194,12 +202,16 @@
                             :availability {:args {:inventoryPoolIds {:type (list (non-null :UUID))}
                                                   :startDate {:type (non-null :Date)}
                                                   :endDate {:type (non-null :Date)}
+                                                  :startTime {:type :Time}
+                                                  :endTime {:type :Time}
                                                   :excludeReservationIds {:type (list (non-null :UUID))}}
                                            :type (list :ModelInventoryPoolAvailability)
                                            :resolve :model-availability}
                             :availableQuantityInDateRange {:args {:inventoryPoolIds {:type (list (non-null :UUID))}
                                                                   :startDate {:type (non-null :Date)}
                                                                   :endDate {:type (non-null :Date)}
+                                                                  :startTime {:type :Time}
+                                                                  :endTime {:type :Time}
                                                                   :userId {:type :UUID}
                                                                   :excludeReservationIds {:type (list (non-null :UUID))}}
                                                            :type (non-null Int)
@@ -291,6 +303,9 @@
                                   :poolOrder {:type :PoolOrder :resolve :pool-order}
                                   :contract {:type :Contract :resolve :contract}
                                   :endDate {:type (non-null :Date)}
+                                  :startTime {:type :Time
+                                              :description "Set for a reservation of a time slot (single day), null for whole days."}
+                                  :endTime {:type :Time}
                                   :returnedDate {:type :Date}
                                   :actualEndDate {:type (non-null :Date)}
                                   :createdAt {:type (non-null :DateTime)}
@@ -483,6 +498,9 @@
 
  :mutations {:createReservation {:args {:startDate {:type (non-null :Date)}
                                         :endDate {:type (non-null :Date)}
+                                        :startTime {:type :Time
+                                                    :description "Together with endTime: reserve only this time slot of the pool. Requires startDate = endDate."}
+                                        :endTime {:type :Time}
                                         :modelId {:type (non-null :UUID)}
                                         :userId {:type :UUID}
                                         :inventoryPoolIds {:type (list (non-null :UUID))

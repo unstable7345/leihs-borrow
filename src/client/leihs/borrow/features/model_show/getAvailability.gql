@@ -5,6 +5,8 @@ query getAvailability(
   $userId: UUID
   $poolIds: [UUID!]
   $excludeReservationIds: [UUID!]
+  $startTime: Time
+  $endTime: Time
 ) {
   model(userId: $userId, id: $modelId) {
     availability(
@@ -12,6 +14,8 @@ query getAvailability(
       endDate: $endDate
       inventoryPoolIds: $poolIds
       excludeReservationIds: $excludeReservationIds
+      startTime: $startTime
+      endTime: $endTime
     ) {
       inventoryPool {
         id
@@ -22,6 +26,12 @@ query getAvailability(
           startDate
           endDate
           name
+        }
+        timeSlots {
+          id
+          name
+          startTime
+          endTime
         }
       }
       dates {

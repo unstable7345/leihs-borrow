@@ -6,6 +6,8 @@ mutation updateReservations(
   $quantity: Int!
   $userId: UUID
   $poolIds: [UUID!]
+  $startTime: Time
+  $endTime: Time
 ) {
   deleteReservationLines(ids: $ids)
   createReservation(
@@ -16,6 +18,8 @@ mutation updateReservations(
     userId: $userId
     inventoryPoolIds: $poolIds
     excludeReservationIds: $ids
+    startTime: $startTime
+    endTime: $endTime
   ) {
     id
     inventoryPool {
@@ -39,6 +43,8 @@ mutation updateReservations(
     }
     startDate
     endDate
+    startTime
+    endTime
     status
     user {
       id

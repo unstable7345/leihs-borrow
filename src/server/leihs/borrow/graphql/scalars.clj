@@ -40,6 +40,17 @@
            .toString)
        (catch Throwable _ nil)))
 
+(defn time-parse
+  "\"HH:mm\" (seconds are dropped)."
+  [x]
+  (try (-> x java-time/local-time (.format (DateTimeFormatter/ofPattern "HH:mm")))
+       (catch Throwable _ nil)))
+
+(defn time-serialize [x]
+  (try (-> (if (instance? java.sql.Time x) (.toLocalTime x) (java-time/local-time (str x)))
+           (.format (DateTimeFormatter/ofPattern "HH:mm")))
+       (catch Throwable _ nil)))
+
 (defn validate-non-empty-text [x]
   (when-not (re-matches #"^\s*$" x) x))
 
@@ -48,6 +59,8 @@
    :uuid-serialize str
    :date-parse date-parse
    :date-serialize date-serialize
+   :time-parse time-parse
+   :time-serialize time-serialize
    :date-time-parse date-time-parse
    :date-time-serialize date-time-serialize
    :non-empty-text-parse validate-non-empty-text

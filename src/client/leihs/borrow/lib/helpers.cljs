@@ -37,6 +37,11 @@
           (str (string/replace (datefn/format d1 "P" locale) (re-pattern (str "/?" (datefn/getYear d1))) "") " – " d2-formatted)
           :else (str d1-formatted " – " d2-formatted))))
 
+(defn format-time-range
+  "Time window of a time slot reservation, e.g. \"08:00–13:00\"."
+  [start-time end-time]
+  (str start-time "–" end-time))
+
 (def log js/console.log)
 
 (defn pp-js [x]

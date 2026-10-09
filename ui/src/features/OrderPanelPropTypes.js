@@ -57,7 +57,15 @@ const OrderPanelPropTypes = {
       name: PropTypes.string.isRequired,
       totalReservableQuantity: PropTypes.number,
       userHasNoAccess: PropTypes.bool,
-      userIsSuspended: PropTypes.bool
+      userIsSuspended: PropTypes.bool,
+      timeSlots: PropTypes.arrayOf(
+        PropTypes.shape({
+          id: PropTypes.string.isRequired,
+          name: PropTypes.string.isRequired,
+          startTime: PropTypes.string.isRequired,
+          endTime: PropTypes.string.isRequired
+        })
+      )
     }).isRequired
   ).isRequired,
   /** initially selected pool */
@@ -65,7 +73,12 @@ const OrderPanelPropTypes = {
   /** callback, when selected pool changes */
   onInventoryPoolChange: PropTypes.func,
 
-  /** callback, submits user selection. arguments: `{startDate, endDate, quantity, poolId}` */
+  /** time slot (`{startTime, endTime}`, "HH:mm") that is initially selected. Empty means whole day */
+  initialTimeSlot: PropTypes.shape({ startTime: PropTypes.string, endTime: PropTypes.string }),
+  /** callback, when selected time slot changes (argument: state incl. `timeSlot`, which is null for whole day) */
+  onTimeSlotChange: PropTypes.func,
+
+  /** callback, submits user selection. arguments: `{startDate, endDate, quantity, poolId, timeSlot}` */
   onSubmit: PropTypes.func.isRequired,
   /** function which is called initially and on each form value change with true (valid) or false (invalid)  */
   onValidate: PropTypes.func,

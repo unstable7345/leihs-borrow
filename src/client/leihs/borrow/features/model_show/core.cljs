@@ -94,10 +94,14 @@
                    (h/date-format-day start-of-current-month)
                    (h/date-format-day fetch-until-date)]}))))
 
+(defn time-window [db]
+  (get-in db [:ls ::data @model-id :time-window]))
+
 (reg-event-fx
  ::fetch-availability
- (fn-traced [{:keys [db]} [_ user-id start-date end-date]]
+ (fn-traced [{:keys [db]} [_ user-id start-date end-date replace?]]
    (let [model-id @model-id
+         window (time-window db)
          pool-ids (pool-ids-with-reservable-quantity db model-id)
          start-date-exceeds-max? (> (js/Date. start-date) max-date)
          end-or-max-date (if (> (js/Date. end-date) max-date)
@@ -122,21 +126,29 @@
                     :userId user-id
                     :poolIds pool-ids
                     :startDate start-date
-                    :endDate end-or-max-date}
-                   [::on-fetched-availability end-date]]}))))
+                    :endDate end-or-max-date
+                    :startTime (:start-time window)
+                    :endTime (:end-time window)}
+                   [::on-fetched-availability end-date window replace?]]}))))
 
 (reg-event-fx
  ::on-fetched-availability
  (fn-traced [{:keys [db]}
-             [_  end-date {{{new-availability :availability} :model} :data
-                           errors :errors}]]
-   (if errors
+             [_  end-date window replace? {{{new-availability :availability} :model} :data
+                                           errors :errors}]]
+   (cond
+     ; fetched for a time slot which is not selected anymore
+     (not= window (time-window db))
+     {}
+     errors
      {:db (update-in db [:ls ::data @model-id]
                      #(availability/set-loading-as-ended % end-date false))
       :dispatch [::errors/add-many errors]}
+     :else
      {:db (-> db
               (update-in [:ls ::data @model-id]
                          #(-> %
+                              (cond-> replace? (assoc :availability []))
                               (availability/update-availability new-availability)
                               (availability/set-loading-as-ended end-date true)
                               (assoc :availability-ready? true))))})))
@@ -153,6 +165,25 @@
                    user-id
                    (-> range-start h/date-format-day)
                    (-> range-end h/date-format-day)]}))))
+
+(reg-event-fx
+ ::change-time-slot
+ (fn-traced [{:keys [db]} [_ user-id time-slot]]
+   (let [window (when time-slot
+                  {:start-time (:startTime time-slot)
+                   :end-time (:endTime time-slot)})
+         model (get-in db [:ls ::data @model-id])]
+     (when (not= window (:time-window model))
+       {:db (-> db
+                (assoc-in [:ls ::data @model-id :time-window] window)
+                (assoc-in [:ls ::data @model-id :fetching-until-date] nil))
+        ; refetch the already loaded range for the new time slot, replacing the old data on arrival
+        :dispatch [::fetch-availability
+                   user-id
+                   (-> (js/Date.) datefn/startOfMonth h/date-format-day)
+                   (or (:fetched-until-date model)
+                       (-> (js/Date.) availability/with-future-buffer h/date-format-day))
+                   true]}))))
 
 (reg-event-db
  ::clear-availability
@@ -173,10 +204,12 @@
    [_ [_ model-id]]
    {:dispatch [::favs/unfavorite-model model-id [:ls ::data model-id :is-favorited]]}))
 
-(reg-event-db
+(reg-event-fx
  ::open-order-panel
- (fn-traced [db]
-   (assoc-in db [::data :order-panel] {:is-open? true})))
+ (fn-traced [{:keys [db]} [_ user-id]]
+   {:db (assoc-in db [::data :order-panel] {:is-open? true})
+    ; the order panel always starts with "whole day"
+    :dispatch [::change-time-slot user-id nil]}))
 
 (reg-event-db
  ::close-order-panel
@@ -262,7 +295,8 @@
               (dissoc-in [:ls ::cart/data :pending-count])
               (assoc-in [::data :order-panel :is-saving?] false))
       :dispatch [::errors/add-many errors]}
-     {:dispatch-n (list [::clear-availability]
+     {:db (assoc-in db [:ls ::data @model-id :time-window] nil)
+      :dispatch-n (list [::clear-availability]
                         [::fetch-availability
                          user-id
                          (-> (js/Date.)
@@ -309,6 +343,8 @@
                                       :endDate (h/date-format-day (:endDate args))
                                       :quantity (int (:quantity args))
                                       :poolIds [(:poolId args)]
+                                      :startTime (-> args :timeSlot :startTime)
+                                      :endTime (-> args :timeSlot :endTime)
                                       :userId user-id}])))
             on-validate (fn [v] (reset! form-valid? v))
             order-panel-data @(subscribe [::order-panel-data])
@@ -338,6 +374,10 @@
               :inventoryPools (map h/camel-case-keys pools)
               :initialShowDayQuants (or show-day-quants false)
               :onShowDayQuantsChange on-show-day-quants-change
+              :onTimeSlotChange (fn [jsargs]
+                                  (dispatch [::change-time-slot
+                                             user-id
+                                             (-> jsargs (js->clj :keywordize-keys true) :timeSlot)]))
               :onSubmit on-submit
               :onValidate on-validate
               :modelData (h/camel-case-keys model)

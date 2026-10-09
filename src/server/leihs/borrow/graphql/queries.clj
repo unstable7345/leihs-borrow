@@ -18,6 +18,7 @@
    [leihs.borrow.resources.users :as users]
    [leihs.borrow.resources.visits :as visits]
    [leihs.borrow.resources.templates :as templates]
+   [leihs.borrow.resources.time-slots :as time-slots]
    [leihs.borrow.resources.workdays :as workdays]
    [leihs.borrow.resources.app-settings :as app-settings]
    [leihs.borrow.testing :as testing]))
@@ -41,6 +42,7 @@
    :favorite-models-connection models/get-favorites-connection
    :has-reservable-items inventory-pools/has-reservable-items?
    :holidays holidays/get-multiple
+   :time-slots time-slots/get-multiple
    :images images/get-multiple
    :inventory-pool inventory-pools/get-one
    :inventory-pool-has-templates inventory-pools/has-templates?

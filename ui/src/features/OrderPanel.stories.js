@@ -102,3 +102,45 @@ export const orderPanel = () => {
 }
 
 orderPanel.storyName = 'OrderPanel'
+
+export const withTimeSlots = () => {
+  const now = new Date(FAKE_STYLEGUIDE_TIME)
+  const { modelData, inventoryPools, initialInventoryPoolId, maxDateLoaded } = getOrderPanelMockData()
+  const timeSlots = [
+    { id: 'slot-morning', name: 'Vormittag', startTime: '08:00', endTime: '13:00' },
+    { id: 'slot-afternoon', name: 'Nachmittag', startTime: '13:00', endTime: '18:00' }
+  ]
+  const poolsWithTimeSlots = inventoryPools.map(pool => ({ ...pool, timeSlots }))
+  const [isValid, setIsValid] = useState()
+
+  return (
+    <ModalDialog title="Gegenstand hinzufügen" className="ui-booking-calendar" shown>
+      <ModalDialog.Body>
+        <OrderPanel
+          modelData={modelData}
+          now={now}
+          maxDateTotal={addYears(now, 10)}
+          maxDateLoaded={maxDateLoaded}
+          initialStartDate={now}
+          initialEndDate={now}
+          initialQuantity={1}
+          inventoryPools={poolsWithTimeSlots}
+          initialInventoryPoolId={initialInventoryPoolId}
+          onTimeSlotChange={action('time-slot-change')}
+          onSubmit={action('submit')}
+          onValidate={setIsValid}
+          locale={fakeLocale}
+          dateLocale={dateLocale}
+          txt={fakeTxt}
+        />
+      </ModalDialog.Body>
+      <ModalDialog.Footer>
+        <button type="submit" className="btn btn-primary" form="order-dialog-form" disabled={!isValid}>
+          Hinzufügen
+        </button>
+      </ModalDialog.Footer>
+    </ModalDialog>
+  )
+}
+
+withTimeSlots.storyName = 'OrderPanel with time slots'

@@ -23,6 +23,8 @@ query getShoppingCart($userId: UUID) {
             }
           }
           startDate
+          startTime
+          endTime
           status
           user {
             id

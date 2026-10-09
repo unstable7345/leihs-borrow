@@ -13,6 +13,7 @@
             [leihs.borrow.resources.helpers :as helpers]
             [leihs.borrow.resources.inventory-pools :as pools]
             [leihs.borrow.resources.models :as models]
+            [leihs.borrow.resources.time-slots :as time-slots]
             [leihs.borrow.resources.workdays :as workdays]
             [leihs.borrow.time :as time]
             [leihs.core.core :refer [raise presence]]
@@ -150,20 +151,22 @@
   [{{tx :tx} :request :as context} reservations]
   (->> reservations
        (map #(spec/assert ::reservation %))
-       (group-by #(-> %
-                      (select-keys [:model_id
-                                    :inventory_pool_id
-                                    :start_date
-                                    :end_date])
-                      vals))
+       (group-by (juxt :model_id
+                       :inventory_pool_id
+                       :start_date
+                       :end_date
+                       :start_time
+                       :end_time))
        (reduce (fn [invalid-rs
-                    [[model-id pool-id start-date end-date] rs]]
+                    [[model-id pool-id start-date end-date start-time end-time] rs]]
                  (let [available-quantity
                        (models/available-quantity-in-date-range
                         context
                         {:inventory-pool-ids [pool-id]
                          :start-date start-date
                          :end-date end-date
+                         :start-time (some-> start-time str)
+                         :end-time (some-> end-time str)
                          :exclude-reservation-ids (->> rs (map :id))}
                         {:id model-id})]
                    (cond-> invalid-rs
@@ -386,11 +389,21 @@
         sql-format
         (query tx))))
 
+(defn- assert-valid-time-slot!
+  [tx pool-id start-date end-date start-time end-time]
+  (when (or start-time end-time)
+    (when-not (and start-time end-time)
+      (raise "Both startTime and endTime are required for a time slot."))
+    (when (not= start-date end-date)
+      (raise "A time slot can only be reserved for a single day."))
+    (when-not (time-slots/offered? tx pool-id start-time end-time)
+      (raise "The inventory pool does not offer this time slot."))))
+
 (defn create
   [{{tx :tx {auth-user-id :id} :authenticated-entity} :request
     user-id ::target-user/id
     :as context}
-   {:keys [model-id start-date end-date quantity]
+   {:keys [model-id start-date end-date start-time end-time quantity]
     [pool-id] :inventory-pool-ids
     exclude-reservation-ids :exclude-reservation-ids
     :or {exclude-reservation-ids []}
@@ -402,11 +415,14 @@
                  (map :id)
                  (some #{pool-id}))
     (raise "Not allowed to create reservation in this pool."))
+  (assert-valid-time-slot! tx pool-id start-date end-date start-time end-time)
   (let [available-quantity (models/available-quantity-in-date-range
                             context
                             {:inventory-pool-ids [pool-id]
                              :start-date start-date
                              :end-date end-date
+                             :start-time start-time
+                             :end-time end-time
                              :exclude-reservation-ids exclude-reservation-ids}
                             {:id model-id})]
     (when (< available-quantity quantity)
@@ -414,6 +430,8 @@
   (let [row (-> {:inventory_pool_id pool-id, :model_id model-id}
                 (assoc :start_date [:cast start-date :date])
                 (assoc :end_date [:cast end-date :date])
+                (cond-> start-time (assoc :start_time [:cast start-time :time]
+                                          :end_time [:cast end-time :time]))
                 (assoc :quantity 1
                        :user_id user-id
                        :delegated_user_id (when (not= auth-user-id user-id) auth-user-id)

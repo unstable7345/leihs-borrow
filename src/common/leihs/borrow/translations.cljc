@@ -68,7 +68,12 @@
              :from {:en-GB "From" :de-CH "Von" :fr-CH "De"}
              :until {:en-GB "Until" :de-CH "Bis" :fr-CH "À"}
              :undefined {:en-GB "undefined" :de-CH "Unbestimmt" :fr-CH "Indéfini"}
-             :show-day-quants {:en-GB "Show availability in calendar" :de-CH "Verfügbarkeit im Kalender anzeigen" :fr-CH "Afficher la disponibilité dans le calendrier"}}
+             :show-day-quants {:en-GB "Show availability in calendar" :de-CH "Verfügbarkeit im Kalender anzeigen" :fr-CH "Afficher la disponibilité dans le calendrier"}
+             :time-slot {:en-GB "Time slot" :de-CH "Zeitfenster" :fr-CH "Créneau horaire"}
+             :whole-day {:en-GB "Whole day" :de-CH "Ganzer Tag" :fr-CH "Journée entière"}
+             :time-slot-option {:en-GB "{name} ({startTime}–{endTime})" :de-CH "{name} ({startTime}–{endTime})" :fr-CH "{name} ({startTime}–{endTime})"}
+             :time-slot-info {:en-GB "The item is reserved for this time slot of a single day." :de-CH "Der Gegenstand wird für dieses Zeitfenster eines einzelnen Tages reserviert." :fr-CH "L'article est réservé pour ce créneau horaire d'une seule journée."}
+             :whole-day-info {:en-GB "The item is reserved for whole days." :de-CH "Der Gegenstand wird für ganze Tage reserviert." :fr-CH "L'article est réservé pour des journées entières."}}
      :validate {:missing-quantity
                 {:de-CH "Verfügbarkeit kann nicht geprüft werden, da die Anzahl fehlt"
                  :en-GB "Availability can not be checked because the quantity is missing"
@@ -82,6 +87,10 @@
                 {:de-CH "Ungültiges Enddatum"
                  :en-GB "Invalid end date"
                  :fr-CH "Date de fin invalide"}
+                :time-slot-single-day
+                {:de-CH "Ein Zeitfenster kann nur für einen einzelnen Tag reserviert werden"
+                 :en-GB "A time slot can only be reserved for a single day"
+                 :fr-CH "Un créneau horaire ne peut être réservé que pour une seule journée"}
                 :start-after-end
                 {:de-CH "Enddatum muss nach Beginndatum sein"
                  :en-GB "End date must be after start date"

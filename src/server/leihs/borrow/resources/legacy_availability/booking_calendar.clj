@@ -24,13 +24,17 @@
        booking-calendar-visits-sqlvec
        (jdbc-query tx)))
 
-(defn get [tx start-date end-date pool-id user-id model-id exclude-res-ids]
+(defn get
+  "`window`: [start-time end-time] of a time slot, nil for whole days."
+  [tx start-date end-date pool-id user-id model-id exclude-res-ids window]
   (let [today (ch/local-date)
         start-date-jt (ch/local-date start-date)
         start-date-jt* (if (t/before? start-date-jt today) today start-date-jt)
         end-date-jt (ch/local-date end-date)
-        changes (ch/main tx model-id pool-id exclude-res-ids)
-        changes-dates (sort (map first changes))
+        changes-dates (->> (ch/main-per-window tx model-id pool-id exclude-res-ids window)
+                           (mapcat keys)
+                           distinct
+                           sort)
         changes-dates-between-start-and-end-date (filter #(and (t/before? start-date-jt* %)
                                                                (t/before? % end-date-jt))
                                                          changes-dates)
@@ -54,7 +58,8 @@
                                              from-date
                                              to-date
                                              pool-id
-                                             exclude-res-ids)]
+                                             exclude-res-ids
+                                             window)]
                                (->> (ch/explode-date-range from-date to-date)
                                     (map #(hash-map :date (str %) :quantity quantity :visits_count 0))))))
                       flatten)
@@ -80,4 +85,4 @@
         start-date (str (ch/local-date))
         end-date (str (t/plus (ch/local-date) (t/days 30)))]
    ; (get-visits-counts tx start-date end-date pool-id)
-    (get tx start-date end-date pool-id user-id model-id nil)))
+    (get tx start-date end-date pool-id user-id model-id nil nil)))

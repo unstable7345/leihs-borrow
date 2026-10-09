@@ -88,8 +88,26 @@
     :dispatch [::fetch-availability start-date end-date]}))
 
 (reg-event-fx
+ ::change-time-slot
+ (fn-traced [{:keys [db]} [_ time-slot]]
+   (let [window (when time-slot
+                  {:start-time (:startTime time-slot)
+                   :end-time (:endTime time-slot)})
+         edit-mode (::edit-mode db)]
+     (when (and edit-mode (not= window (:time-window edit-mode)))
+       {:db (-> db
+                (assoc-in [::edit-mode :time-window] window)
+                (assoc-in [::edit-mode :fetching-until-date] nil))
+        ; refetch the already loaded range for the new time slot, replacing the old data on arrival
+        :dispatch [::fetch-availability
+                   (-> (js/Date.) date-fns/startOfMonth h/date-format-day)
+                   (or (:fetched-until-date edit-mode)
+                       (-> (js/Date.) availability/with-future-buffer h/date-format-day))
+                   true]}))))
+
+(reg-event-fx
  ::fetch-availability
- (fn-traced [{:keys [db]} [_ start-date end-date]]
+ (fn-traced [{:keys [db]} [_ start-date end-date replace?]]
    (let [edit-mode (get-in db [::edit-mode])
          user-id (-> edit-mode :user-id)
          model (:model edit-mode)
@@ -114,22 +132,30 @@
                     :poolIds pool-ids
                     :startDate start-date
                     :endDate end-or-max-date
+                    :startTime (-> edit-mode :time-window :start-time)
+                    :endTime (-> edit-mode :time-window :end-time)
                     :excludeReservationIds exclude-reservation-ids}
-                   [::on-fetched-availability end-date]]}))))
+                   [::on-fetched-availability end-date (:time-window edit-mode) replace?]]}))))
 
 (reg-event-fx
  ::on-fetched-availability
  (fn-traced [{:keys [db]}
-             [_ end-date {{{new-availability :availability} :model} :data
-                          errors :errors}]]
-   (if errors
+             [_ end-date window replace? {{{new-availability :availability} :model} :data
+                                          errors :errors}]]
+   (cond
+     ; fetched for a time slot which is not selected anymore
+     (not= window (get-in db [::edit-mode :time-window]))
+     {}
+     errors
      {:db (update-in db [::edit-mode]
                      #(availability/set-loading-as-ended % end-date false))
       :dispatch [::errors/add-many errors]}
+     :else
      {:db (-> db
               (update-in [::edit-mode]
                          #(when %
                             (-> %
+                                (cond-> replace? (assoc :availability []))
                                 (availability/update-availability new-availability)
                                 (availability/set-loading-as-ended end-date true)))))})))
 
@@ -213,6 +239,9 @@
                        :inventory-pool inventory-pool
                        :start-date start-date
                        :end-date end-date
+                       :time-window (when (:start-time res-line)
+                                      {:start-time (:start-time res-line)
+                                       :end-time (:end-time res-line)})
                        :quantity quantity
                        :user-id user-id})
         :dispatch [::fetch-total-reservable-quantities
@@ -329,10 +358,13 @@
                    [(get-in line [:start-date])
                     (get-in line [:inventory-pool :id])
                     (get-in line [:model :id])
-                    (get-in line [:end-date])]))
+                    (get-in line [:end-date])
+                    (get-in line [:start-time])
+                    (get-in line [:end-time])]))
                 (sort-by
                  (fn [[_ [line0]]]
                    [(get-in line0 [:start-date])
+                    (str (get-in line0 [:start-time]))
                     (get-in line0 [:inventory-pool :name])
                     (get-in line0 [:model :name])
                     (get-in line0 [:end-date])])))))
@@ -411,9 +443,17 @@
                                              (and selected-pool (not-any? #(= (:id %) (:id selected-pool)) pools))
                                               [(merge selected-pool {:user-has-no-access true})])))
 
+            assoc-time-slots (fn [pool]
+                               (assoc pool :time-slots (->> availability
+                                                            (filter #(= (-> % :inventory-pool :id) (:id pool)))
+                                                            first
+                                                            :inventory-pool
+                                                            :time-slots)))
+            time-window (:time-window edit-mode-data)
             pool-id-and-name (:inventory-pool edit-mode-data)
             pools (->> model :total-reservable-quantities
                        (map flatten-pool)
+                       (map assoc-time-slots)
                        (filter #(has-items-or-is-selected (:id pool-id-and-name) %))
                        (map #(-> % (assoc-suspension suspensions)))
                        (add-inaccessible-pool pool-id-and-name))
@@ -438,6 +478,12 @@
              :initialStartDate start-date
              :initialEndDate end-date
              :initialInventoryPoolId (:id pool-id-and-name)
+             :initialTimeSlot (when time-window
+                                {:startTime (:start-time time-window)
+                                 :endTime (:end-time time-window)})
+             :onTimeSlotChange (fn [jsargs]
+                                 (dispatch [::change-time-slot
+                                            (-> jsargs (js->clj :keywordize-keys true) :timeSlot)]))
              :inventoryPools (map h/camel-case-keys pools)
              :maxDateLoaded fetched-until-date
              :maxDateTotal max-date
@@ -456,6 +502,8 @@
                                        :endDate (h/date-format-day (:endDate args))
                                        :quantity (int (:quantity args))
                                        :poolIds [(:poolId args)]
+                                       :startTime (-> args :timeSlot :startTime)
+                                       :endTime (-> args :timeSlot :endTime)
                                        :userId user-id}])))
              :onValidate (fn [v] (reset! form-valid? v))
              :modelData (h/camel-case-keys (merge model {:availability availability}))
@@ -503,7 +551,9 @@
        [:div pool-names]
        [:div {:class (when invalid? "text-danger")}
         (h/format-date-range start-date end-date date-locale)
-        " (" (t :line.duration-days {:totalDays total-days}) ")"]]]]))
+        (if (:start-time exemplar)
+          (str ", " (h/format-time-range (:start-time exemplar) (:end-time exemplar)))
+          (str " (" (t :line.duration-days {:totalDays total-days}) ")"))]]]]))
 
 (defn delegation-section []
   (let [user-data @(subscribe [::current-user/user-data])

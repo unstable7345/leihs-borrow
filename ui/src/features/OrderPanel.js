@@ -47,6 +47,9 @@ const OrderPanel = ({
   initialShowDayQuants = false,
   onShowDayQuantsChange = noop,
   //
+  initialTimeSlot,
+  onTimeSlotChange = noop,
+  //
   onValidate = noop,
   onSubmit = noop,
   locale,
@@ -60,9 +63,13 @@ const OrderPanel = ({
 
   const [quantity, setQuantity] = useState(initialQuantity)
   const [selectedPoolId, setSelectedPoolId] = useState(initialInventoryPoolId || inventoryPools?.[0]?.id || 'NO_POOLS')
-  const [selectedRange, setSelectedRange] = useState({
-    startDate: initialStartDate ? startOfDay(initialStartDate) : today,
-    endDate: initialEndDate ? startOfDay(initialEndDate) : addDays(today, 1)
+  // Time slots are identified by their time window (stable across the pools' data reloads)
+  const [selectedTimeSlotKey, setSelectedTimeSlotKey] = useState(timeSlotKey(initialTimeSlot))
+  const [selectedRange, setSelectedRange] = useState(() => {
+    const startDate = initialStartDate ? startOfDay(initialStartDate) : today
+    const endDate = initialEndDate ? startOfDay(initialEndDate) : addDays(today, 1)
+    // A time slot is always booked for a single day
+    return initialTimeSlot ? { startDate, endDate: startDate } : { startDate, endDate }
   })
 
   // State depending on the input states (e.g. validation result)
@@ -101,12 +108,18 @@ const OrderPanel = ({
     )
     const maxQuantityByDay = getMaxQuantityByDay(poolAvailability)
 
+    // Time slots of the selected pool (empty when it only offers whole days)
+    const timeSlots = selectedPool.timeSlots || []
+    const selectedTimeSlot = timeSlots.find(x => timeSlotKey(x) === selectedTimeSlotKey)
+
     // Validation
-    const validationResult = validate(selectedPool, poolAvailability)
+    const validationResult = validate(selectedPool, poolAvailability, selectedTimeSlot)
 
     setDependentState({
       selectablePools,
       selectedPool,
+      timeSlots,
+      selectedTimeSlot,
       poolAvailability,
       disabledDates,
       disabledStartDates,
@@ -116,13 +129,26 @@ const OrderPanel = ({
     })
 
     onValidate(validationResult.isValid)
-  }, [quantity, selectedPoolId, selectedRange, modelData, maxDateTotal, maxDateLoaded, inventoryPools, locale])
+  }, [
+    quantity,
+    selectedPoolId,
+    selectedTimeSlotKey,
+    selectedRange,
+    modelData,
+    maxDateTotal,
+    maxDateLoaded,
+    inventoryPools,
+    locale
+  ])
 
   // Validation
-  function validate(selectedPool, poolAvailability) {
+  function validate(selectedPool, poolAvailability, selectedTimeSlot) {
     const poolError = validatePool(selectedPool, locale, txt.validate)
     if (poolError) {
       return { poolError }
+    }
+    if (selectedTimeSlot && !isSameDay(selectedRange.startDate, selectedRange.endDate)) {
+      return { dateRangeErrors: [t(txt.validate, 'time-slot-single-day', locale)] }
     }
     const dateRangeErrors = validateDateRange(
       selectedRange,
@@ -146,7 +172,11 @@ const OrderPanel = ({
 
   function submit(e) {
     e.preventDefault()
-    const validationResult = validate(dependentState.selectedPool, dependentState.poolAvailability)
+    const validationResult = validate(
+      dependentState.selectedPool,
+      dependentState.poolAvailability,
+      dependentState.selectedTimeSlot
+    )
     if (validationResult.isValid) {
       onSubmit(stateForCallbacks())
     }
@@ -160,10 +190,30 @@ const OrderPanel = ({
   function changeInventoryPool(e) {
     const id = e.target.value
     setSelectedPoolId(id)
-    onInventoryPoolChange({ ...stateForCallbacks(), poolId: id })
+    // The time slots are specific to the pool
+    setSelectedTimeSlotKey('')
+    onInventoryPoolChange({ ...stateForCallbacks(), poolId: id, timeSlot: null })
+    if (selectedTimeSlotKey) {
+      onTimeSlotChange({ ...stateForCallbacks(), poolId: id, timeSlot: null })
+    }
+  }
+
+  function changeTimeSlot(e) {
+    const key = e.target.value
+    const timeSlot = dependentState.timeSlots.find(x => timeSlotKey(x) === key) || null
+    setSelectedTimeSlotKey(key)
+    // A time slot is always booked for a single day
+    const range = timeSlot ? { startDate: selectedRange.startDate, endDate: selectedRange.startDate } : selectedRange
+    setSelectedRange(range)
+    onTimeSlotChange({ ...stateForCallbacks(), ...range, timeSlot })
   }
 
   function changeDateRange(range) {
+    if (selectedTimeSlotKey && !isSameDay(range.startDate, range.endDate)) {
+      // Collapse to the newly picked day
+      const day = isSameDay(range.startDate, selectedRange.startDate) ? range.endDate : range.startDate
+      range = { startDate: day, endDate: day }
+    }
     setSelectedRange(range)
     onDatesChange({ ...stateForCallbacks(), ...range })
   }
@@ -172,7 +222,8 @@ const OrderPanel = ({
     startDate: selectedRange.startDate,
     endDate: selectedRange.endDate,
     quantity,
-    poolId: selectedPoolId
+    poolId: selectedPoolId,
+    timeSlot: dependentState?.selectedTimeSlot || null
   })
 
   function handleCalendarNavigate(newDate) {
@@ -190,6 +241,7 @@ const OrderPanel = ({
   const {
     selectablePools,
     selectedPool,
+    timeSlots,
     disabledDates,
     disabledStartDates,
     disabledEndDates,
@@ -260,6 +312,30 @@ const OrderPanel = ({
                   </label>
                   <MinusPlusControl name="quantity" id="quantity" value={quantity} onChange={changeQuantity} min={1} />
                 </Section>
+                {timeSlots.length > 0 && (
+                  <Section title={t(label, 'time-slot', locale)}>
+                    <label htmlFor="time-slot-id" className="visually-hidden">
+                      {t(label, 'time-slot', locale)}
+                    </label>
+                    <select
+                      name="time-slot-id"
+                      id="time-slot-id"
+                      value={selectedTimeSlotKey}
+                      onChange={changeTimeSlot}
+                      className="form-select"
+                    >
+                      <option value="">{t(label, 'whole-day', locale)}</option>
+                      {timeSlots.map(({ id, name, startTime, endTime }) => (
+                        <option key={id} value={timeSlotKey({ startTime, endTime })}>
+                          {t(label, 'time-slot-option', locale, { name, startTime, endTime })}
+                        </option>
+                      ))}
+                    </select>
+                    <InfoMessage className="mt-2">
+                      {selectedTimeSlotKey ? t(label, 'time-slot-info', locale) : t(label, 'whole-day-info', locale)}
+                    </InfoMessage>
+                  </Section>
+                )}
                 <Section title={title}>
                   <fieldset>
                     <legend className="visually-hidden">{title}</legend>
@@ -319,6 +395,10 @@ const OrderPanel = ({
 OrderPanel.displayName = 'OrderPanel'
 OrderPanel.propTypes = orderPanelPropTypes
 export default OrderPanel
+
+function timeSlotKey(timeSlot) {
+  return timeSlot && timeSlot.startTime ? `${timeSlot.startTime}-${timeSlot.endTime}` : ''
+}
 
 function getDateRangePickerConstraints(poolAvailability, today, wantedQuantity) {
   const { dates } = poolAvailability

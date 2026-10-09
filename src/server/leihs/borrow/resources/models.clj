@@ -143,6 +143,8 @@
    {:keys [inventory-pool-ids
            start-date
            end-date
+           start-time
+           end-time
            exclude-reservation-ids] :as args}
    value]
   (or (:available-quantity-in-date-range value)
@@ -162,7 +164,9 @@
                                                             start-date
                                                             end-date
                                                             pool-ids
-                                                            exclude-reservation-ids)))))
+                                                            exclude-reservation-ids
+                                                            (when start-time
+                                                              [start-time end-time]))))))
 
 (defn relevant-pool-ids
   [tx user-id start-date end-date selected-pool-ids]
@@ -196,7 +200,8 @@
 
 (defn get-availability
   [{{tx :tx} :request user-id ::target-user/id :as context}
-   {:keys [start-date end-date inventory-pool-ids exclude-reservation-ids]}
+   {:keys [start-date end-date start-time end-time inventory-pool-ids
+           exclude-reservation-ids]}
    value]
   (let [pools (pools/get-multiple context {:ids inventory-pool-ids} nil)]
     (map (fn [{pool-id :id}]
@@ -208,7 +213,8 @@
                                 pool-id
                                 user-id
                                 (:id value)
-                                (or exclude-reservation-ids []))]
+                                (or exclude-reservation-ids [])
+                                (when start-time [start-time end-time]))]
              (-> avail
                  (update :dates #(restrict/validate-dates tx % pool))
                  (assoc :inventory-pool pool))))

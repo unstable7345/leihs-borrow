@@ -97,6 +97,7 @@
                 (sort-by
                  (fn [line]
                    [(get-in line [:start-date])
+                    (str (get-in line [:start-time]))
                     (get-in line [:inventory-pool :name])
                     (get-in line [:model :name])
                     (get-in line [:actual-end-date])])))))
