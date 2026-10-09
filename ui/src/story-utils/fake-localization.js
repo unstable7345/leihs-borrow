@@ -27,6 +27,7 @@ export const orderPanelTexts = {
     'start-after-end': { 'de-CH': 'Enddatum muss nach Beginndatum sein' },
     'time-slot-single-day': { 'de-CH': 'Ein Zeitfenster kann nur für einen einzelnen Tag reserviert werden' },
     'time-slot-over': { 'de-CH': 'Dieses Zeitfenster ist bereits vorbei' },
+    'pickup-day-over': { 'de-CH': 'Abholung an diesem Tag nicht mehr möglich' },
     'end-date-too-late': { 'de-CH': 'Datum darf nicht nach {maxDate, date, small} sein' },
 
     'start-date-in-past': { 'de-CH': 'Abholdatum liegt in der Vergangenheit' },

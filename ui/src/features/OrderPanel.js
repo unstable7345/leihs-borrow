@@ -154,6 +154,15 @@ const OrderPanel = ({
     if (selectedTimeSlot && isTimeSlotOver(selectedRange.startDate, selectedTimeSlot, currentTime)) {
       return { dateRangeErrors: [t(txt.validate, 'time-slot-over', locale)] }
     }
+    // The last time slot of a day is its time of closing
+    const poolTimeSlots = selectedPool.timeSlots || []
+    if (
+      !selectedTimeSlot &&
+      poolTimeSlots.length > 0 &&
+      poolTimeSlots.every(x => isTimeSlotOver(selectedRange.startDate, x, currentTime))
+    ) {
+      return { dateRangeErrors: [t(txt.validate, 'pickup-day-over', locale)] }
+    }
     const dateRangeErrors = validateDateRange(
       selectedRange,
       today,

@@ -102,6 +102,11 @@
                  :en-GB "This time slot is already over"
                  :es "Esta franja horaria ya terminó"
                  :fr-CH "Ce créneau horaire est déjà passé"}
+                :pickup-day-over
+                {:de-CH "Abholung an diesem Tag nicht mehr möglich"
+                 :en-GB "Pickup on this day is no longer possible"
+                 :es "El retiro en este día ya no es posible"
+                 :fr-CH "Le retrait n'est plus possible ce jour-là"}
                 :start-after-end
                 {:de-CH "Enddatum muss nach Beginndatum sein"
                  :en-GB "End date must be after start date"

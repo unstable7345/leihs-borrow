@@ -124,6 +124,13 @@
       first
       :result))
 
+(defn- pickup-day-over?
+  "Whether the last time slot of the pool on that day is already over. Pools
+  without time slots have no time of closing."
+  [tx pool-id date]
+  (some->> (time-slots/last-end-time tx pool-id)
+           (time/time-slot-ended? tx date)))
+
 (defn broken
   ([tx user-id]
    (broken tx user-id (-> (unsubmitted-sqlmap tx user-id)
@@ -143,8 +150,9 @@
                                          second)]
                        (not (some #{(:inventory_pool_id r)} pool-ids)))
                      (not (complies-with-max-reservation-time? tx r))
-                     (and (:start_time r)
-                          (time/time-slot-ended? tx (:start_date r) (:end_time r))))
+                     (if (:start_time r)
+                       (time/time-slot-ended? tx (:start_date r) (:end_time r))
+                       (pickup-day-over? tx (:inventory_pool_id r) (:start_date r))))
                  (conj r)))
              []
              rs))))
@@ -393,15 +401,18 @@
 
 (defn- assert-valid-time-slot!
   [tx pool-id start-date end-date start-time end-time]
-  (when (or start-time end-time)
-    (when-not (and start-time end-time)
-      (raise "Both startTime and endTime are required for a time slot."))
-    (when (not= start-date end-date)
-      (raise "A time slot can only be reserved for a single day."))
-    (when-not (time-slots/offered? tx pool-id start-time end-time)
-      (raise "The inventory pool does not offer this time slot."))
-    (when (time/time-slot-ended? tx start-date end-time)
-      (raise "This time slot is already over."))))
+  (if (or start-time end-time)
+    (do
+      (when-not (and start-time end-time)
+        (raise "Both startTime and endTime are required for a time slot."))
+      (when (not= start-date end-date)
+        (raise "A time slot can only be reserved for a single day."))
+      (when-not (time-slots/offered? tx pool-id start-time end-time)
+        (raise "The inventory pool does not offer this time slot."))
+      (when (time/time-slot-ended? tx start-date end-time)
+        (raise "This time slot is already over.")))
+    (when (pickup-day-over? tx pool-id start-date)
+      (raise "Pickup on this day is no longer possible: the last time slot is over."))))
 
 (defn create
   [{{tx :tx {auth-user-id :id} :authenticated-entity} :request

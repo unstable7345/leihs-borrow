@@ -23,6 +23,17 @@
 (defn get-multiple [{{tx :tx} :request} _ {pool-id :id}]
   (get-by-pool-id tx pool-id))
 
+(defn last-end-time
+  "The end of the last time slot of the pool (nil if it has none)."
+  [tx pool-id]
+  (-> (sql/select [[:max :end_time] :end_time])
+      (sql/from :time_slots)
+      (sql/where [:= :inventory_pool_id pool-id])
+      sql-format
+      (->> (jdbc-query tx))
+      first
+      :end_time))
+
 (defn offered?
   "Whether the pool offers a time slot with exactly this window."
   [tx pool-id start-time end-time]
