@@ -17,6 +17,11 @@
    [leihs.borrow.resources.users.shared :as users]
    [taoensso.timbre :refer [debug info warn error spy]]))
 
+;; The time slot of a reservation ("10:00–12:00"), NULL for whole days, so
+;; mail templates can use {% if l.time_slot %}.
+(def ^:private time-slot-sql
+  [:raw "CASE WHEN r.start_time IS NULL THEN NULL ELSE to_char(r.start_time, 'HH24:MI') || '–' || to_char(r.end_time, 'HH24:MI') END"])
+
 (defn send-received [tx order settings]
   (let [inventory-pool (->> order
                             :inventory_pool_id
@@ -33,6 +38,9 @@
                                      (email-vars/merge-workdays tx lang-locale)
                                      (email-vars/merge-holidays tx lang-locale))
                            reservations (-> (sql/select :r.quantity, :r.start_date, :r.end_date
+                                                        [[:to_char :r.start_time "HH24:MI"] :start_time]
+                                                        [[:to_char :r.end_time "HH24:MI"] :end_time]
+                                                        [time-slot-sql :time_slot]
                                                         [[:concat_ws " " :m.product :m.version] :model_name])
                                             (sql/from [:reservations :r])
                                             (sql/join [:models :m] [:= :r.model_id :m.id])
@@ -85,6 +93,9 @@
           (not tmpl) (warn (format "No 'submitted' mail template found for pool '%s'." (:id inventory-pool)))
           :else (let [email-signature (:email_signature settings)
                       reservations (-> (sql/select :r.quantity, :r.start_date, :r.end_date
+                                                   [[:to_char :r.start_time "HH24:MI"] :start_time]
+                                                   [[:to_char :r.end_time "HH24:MI"] :end_time]
+                                                   [time-slot-sql :time_slot]
                                                    [[:concat_ws " " :m.product :m.version] :model_name])
                                        (sql/from [:reservations :r])
                                        (sql/join [:models :m] [:= :r.model_id :m.id])
