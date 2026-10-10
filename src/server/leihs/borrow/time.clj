@@ -13,7 +13,16 @@
   (or (-> (settings tx [:time_zone]) :time_zone time-zone/zone-id)
       (java.time.ZoneId/of "UTC")))
 
-(defn now [tx]
+(defn now
+  "The current date and time in UTC, for timestamps (created_at, updated_at):
+  like Rails, leihs stores them in UTC."
+  [_tx]
+  (java-time/local-date-time (java-time/instant) (java.time.ZoneId/of "UTC")))
+
+(defn local-now
+  "The current date and time in the time zone of the settings, for comparing
+  with times of day (time slots)."
+  [tx]
   (java-time/local-date-time (java-time/instant) (time-zone tx)))
 
 (defn expired-time? [tx timestamp]
@@ -29,7 +38,7 @@
   "Whether the time slot ending at `end-time` (\"HH:mm[:ss]\") of `date` is
   already over (in the time zone of the settings)."
   [tx date end-time]
-  (let [now* (now tx)
+  (let [now* (local-now tx)
         date* (java.time.LocalDate/parse (str date))
         end-time* (java.time.LocalTime/parse (str end-time))]
     (not (java-time/after? (java-time/local-date-time date* end-time*) now*))))
