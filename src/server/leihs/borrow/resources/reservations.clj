@@ -151,7 +151,12 @@
                        (not (some #{(:inventory_pool_id r)} pool-ids)))
                      (not (complies-with-max-reservation-time? tx r))
                      (if (:start_time r)
-                       (time/time-slot-ended? tx (:start_date r) (:end_time r))
+                       (or (time/time-slot-ended? tx (:start_date r) (:end_time r))
+                           ;; e.g. the time slot was deleted in the meantime
+                           (not (time-slots/offered? tx
+                                                     (:inventory_pool_id r)
+                                                     (str (:start_time r))
+                                                     (str (:end_time r)))))
                        (pickup-day-over? tx (:inventory_pool_id r) (:start_date r))))
                  (conj r)))
              []
