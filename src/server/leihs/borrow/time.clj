@@ -1,14 +1,17 @@
 (ns leihs.borrow.time
   (:require [leihs.core.settings :refer [settings]]
+            [leihs.core.time-zone :as time-zone]
             [taoensso.timbre :refer [debug info warn error spy]]
             [leihs.core.db :as db]
             java-time)
   (:import [java.time.format DateTimeFormatter]))
 
-(defn time-zone [tx]
-  (-> (settings tx [:time_zone])
-      :time_zone
-      java.util.TimeZone/getTimeZone))
+(defn time-zone
+  "The time zone of the settings (a Rails name like Bern or an IANA id), UTC
+  if unknown."
+  [tx]
+  (or (-> (settings tx [:time_zone]) :time_zone time-zone/zone-id)
+      (java.time.ZoneId/of "UTC")))
 
 (defn now [tx]
   (java-time/local-date-time (java-time/instant) (time-zone tx)))
