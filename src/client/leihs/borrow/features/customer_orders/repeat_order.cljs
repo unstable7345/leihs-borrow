@@ -176,7 +176,7 @@
           [:> UI/Components.Design.ModalDialog
            {:id :repeat-order
             :shown true
-            :dismissible true
+            :dismissible true :closeLabel (t :!borrow.terms.close)
             :on-dismiss #(dispatch [::close-repeat-dialog])
             :title (t :dialog.title)
             :class "ui-repeat-order-dialog"}

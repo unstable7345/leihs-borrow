@@ -467,7 +467,7 @@
             on-show-day-quants-change #(dispatch [::prefs/set-show-day-quants %])]
 
         [:> UI/Components.Design.ModalDialog {:shown true
-                                              :dismissible true
+                                              :dismissible true :closeLabel (t :!borrow.terms.close)
                                               :on-dismiss #(dispatch [::cancel-edit])
                                               :title (t :edit-dialog/dialog-title)
                                               :class "ui-booking-calendar"}
@@ -611,7 +611,7 @@
             is-saving? (:is-saving? dialog-data)]
         [:> UI/Components.Design.ModalDialog {:id :confirm-order
                                               :shown (some? dialog-data)
-                                              :dismissible true
+                                              :dismissible true :closeLabel (t :!borrow.terms.close)
                                               :on-dismiss #(dispatch [::close-order-dialog])
                                               :title (t :confirm-dialog/dialog-title)
                                               :class "ui-confirm-order-dialog"}
@@ -728,7 +728,7 @@
         :onConfirm #(dispatch [::delete-all-reservations (map :id reservations)])
         :confirmLabel (t :delete-dialog/confirm)
         :confirmIsLoading (:is-saving? dialog-data)
-        :dismissible true
+        :dismissible true :closeLabel (t :!borrow.terms.close)
         :onDismiss #(dispatch [::close-delete-dialog])
         :onCancel #(dispatch [::close-delete-dialog])
         :cancelLabel (t :delete-dialog/cancel)}

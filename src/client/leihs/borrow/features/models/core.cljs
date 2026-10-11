@@ -155,7 +155,8 @@
                                                :query-params model-filters)
                       :isFavorited (:is-favorited model)})))]
     [:<>
-     [:> UI/Components.ModelList {:list models-list}]
+     [:> UI/Components.ModelList {:list models-list
+                                  :favoriteTitle (t :!borrow.terms.favorite)}]
      (when debug? [:p (pr-str @(subscribe [::data]))])]))
 
 (defn load-more [cache-key extra-vars]

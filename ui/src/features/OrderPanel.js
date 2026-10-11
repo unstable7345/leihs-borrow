@@ -323,7 +323,15 @@ const OrderPanel = ({
                   <label htmlFor="quantity" className="visually-hidden">
                     {t(label, 'quantity', locale)}
                   </label>
-                  <MinusPlusControl name="quantity" id="quantity" value={quantity} onChange={changeQuantity} min={1} />
+                  <MinusPlusControl
+                    name="quantity"
+                    id="quantity"
+                    value={quantity}
+                    onChange={changeQuantity}
+                    min={1}
+                    minusLabel={`${t(label, 'minus', locale)} 1`}
+                    plusLabel={`${t(label, 'plus', locale)} 1`}
+                  />
                 </Section>
                 {timeSlots.length > 0 && (
                   <Section title={t(label, 'time-slot', locale)}>

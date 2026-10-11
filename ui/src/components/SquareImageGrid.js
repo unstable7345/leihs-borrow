@@ -3,7 +3,7 @@ import cx from 'classnames'
 import { StarIcon } from './Icons'
 import SquareImage from './SquareImage'
 
-export default function SquareImageGrid({ list = [], className, itemClassName, ...restProps }) {
+export default function SquareImageGrid({ list = [], className, itemClassName, favoriteTitle, ...restProps }) {
   return (
     <div className={cx('ui-square-image-grid row g-0 d-flex flex-wrap mx-n2', className)} {...restProps}>
       {list.map(({ id, href, imgSrc, placeholder, caption, subCaption, isDimmed, isFavorited }) => (
@@ -13,7 +13,7 @@ export default function SquareImageGrid({ list = [], className, itemClassName, .
             style={{ opacity: 1 }}
           >
             {isFavorited && (
-              <div className="position-absolute square-image-grid__favorite-marker" title="Favorit">
+              <div className="position-absolute square-image-grid__favorite-marker" title={favoriteTitle}>
                 <StarIcon />
               </div>
             )}

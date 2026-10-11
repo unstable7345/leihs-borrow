@@ -7,7 +7,8 @@ export default function SearchFilterCombinedInput({
   onSearchTermChange,
   onSearchTermClear,
   searchLabel,
-  searchPlaceholder
+  searchPlaceholder,
+  clearLabel
 }) {
   return (
     <div className="d-flex">
@@ -19,6 +20,7 @@ export default function SearchFilterCombinedInput({
           value={searchTerm}
           onChange={e => onSearchTermChange(e.target.value)}
           onClear={onSearchTermClear}
+          clearLabel={clearLabel}
           placeholder={searchPlaceholder}
           aria-autocomplete="both"
           autoComplete="off"

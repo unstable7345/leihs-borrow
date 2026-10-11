@@ -54,6 +54,7 @@ export default function ModelSearchFilter({
           onSearchTermClear={handleTermClear}
           searchLabel={t(txt, 'search-button-label', locale)}
           searchPlaceholder={t(txt, 'search-input-placeholder', locale)}
+          clearLabel={t(txt, 'clear-input', locale)}
         />
 
         <div className="filters">
@@ -87,7 +88,7 @@ export default function ModelSearchFilter({
                     e.stopPropagation()
                     onClearFilter({ type: 'pool' })
                   }}
-                  aria-label="Clear filter"
+                  aria-label={t(txt, 'clear-filter', locale)}
                 >
                   <CrossIcon height="14" width="14" />
                 </button>
@@ -125,7 +126,7 @@ export default function ModelSearchFilter({
                   e.stopPropagation()
                   onClearFilter({ type: 'onlyAvailable' })
                 }}
-                aria-label="Clear filter"
+                aria-label={t(txt, 'clear-filter', locale)}
               >
                 <CrossIcon height="14" width="14" />
               </button>

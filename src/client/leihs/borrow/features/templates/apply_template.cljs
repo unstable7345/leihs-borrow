@@ -143,7 +143,7 @@
           [:> UI/Components.Design.ModalDialog
            {:id :apply-template
             :shown true
-            :dismissible true
+            :dismissible true :closeLabel (t :!borrow.terms.close)
             :on-dismiss #(dispatch [::close-dialog])
             :title (t :dialog.title)
             :class "ui-apply-template-dialog"}

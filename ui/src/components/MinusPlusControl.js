@@ -10,6 +10,8 @@ export default function MinusPlusControl({
   min,
   max,
   inputComponent: InputComponent = 'input',
+  minusLabel = 'Minus 1',
+  plusLabel = 'Plus 1',
   ...restProps
 }) {
   const inputRef = useRef()
@@ -82,8 +84,8 @@ export default function MinusPlusControl({
           onClick={() => add(-1)}
           onMouseDown={buttonMouseDown}
           tabIndex="-1"
-          aria-label="Minus 1"
-          title="Minus 1"
+          aria-label={minusLabel}
+          title={minusLabel}
         >
           <CircleMinusIcon />
         </button>
@@ -106,8 +108,8 @@ export default function MinusPlusControl({
           className="btn btn-secondary w-100"
           onClick={() => add(1)}
           onMouseDown={buttonMouseDown}
-          aria-label="Plus 1"
-          title="Plus 1"
+          aria-label={plusLabel}
+          title={plusLabel}
           tabIndex="-1"
         >
           <CirclePlusIcon />
@@ -121,5 +123,8 @@ MinusPlusControl.propTypes = {
   className: PropTypes.string,
   onChange: PropTypes.func,
   /** component to use instead of the native 'input' component if needed (e.g. for Reagent) */
-  inputComponent: PropTypes.oneOfType([PropTypes.object, PropTypes.func, PropTypes.string])
+  inputComponent: PropTypes.oneOfType([PropTypes.object, PropTypes.func, PropTypes.string]),
+  /** labels (aria-label and title) of the buttons */
+  minusLabel: PropTypes.string,
+  plusLabel: PropTypes.string
 }

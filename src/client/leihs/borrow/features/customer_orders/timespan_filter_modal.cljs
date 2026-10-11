@@ -28,7 +28,7 @@
                  true))
             valid? start-date-equal-or-before-end-date?]
         (with-translate-path :borrow.rentals.filter.timespan-modal
-          [:> UI/Components.Design.ModalDialog {:title (t :title) :shown true :dismissible true :onDismiss hide!}
+          [:> UI/Components.Design.ModalDialog {:title (t :title) :shown true :dismissible true :closeLabel (t :!borrow.terms.close) :onDismiss hide!}
            [:> UI/Components.Design.ModalDialog.Body
             [:form {:id "filter-form"
                     :noValidate true

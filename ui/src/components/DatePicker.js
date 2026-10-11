@@ -134,7 +134,6 @@ export default function DatePicker({
         <button
           className="btn position-absolute"
           type="button"
-          title="Eingabe löschen"
           tabIndex="-1"
           onClick={openCalendarButtonClick}
           onMouseDown={openCalendarButtonMouseDown}

@@ -12,6 +12,8 @@
 
             :delegation {:de-CH "Delegation" :en-GB "Delegation" :es "Delegación" :fr-CH "Délégation"}
             :delegations {:de-CH "Delegationen" :en-GB "Delegations" :es "Delegaciones" :fr-CH "Délégations"}
+            :favorite {:de-CH "Favorit" :en-GB "Favorite" :es "Favorito" :fr-CH "Favori"}
+            :close {:de-CH "Schliessen" :en-GB "Close" :es "Cerrar" :fr-CH "Fermer"}
 
             :weekdays {:monday {:de-CH "Montag" :en-GB "Monday" :es "Lunes" :fr-CH "Lundi"}
                        :tuesday {:de-CH "Dienstag" :en-GB "Tuesday" :es "Martes" :fr-CH "Mardi"}
@@ -69,7 +71,7 @@
              :timespan {:en-GB "Time span" :es "Período" :de-CH "Zeitraum" :fr-CH "Période"}
              :from {:en-GB "From" :es "Desde" :de-CH "Von" :fr-CH "De"}
              :until {:en-GB "Until" :es "Hasta" :de-CH "Bis" :fr-CH "À"}
-             :undefined {:en-GB "undefined" :es "Sin definir" :de-CH "Unbestimmt" :fr-CH "Indéfini"}
+             :undefined {:en-GB "Not set" :es "Sin definir" :de-CH "Unbestimmt" :fr-CH "Indéfini"}
              :show-day-quants {:en-GB "Show availability in calendar" :es "Mostrar disponibilidad en el calendario" :de-CH "Verfügbarkeit im Kalender anzeigen" :fr-CH "Afficher la disponibilité dans le calendrier"}
              :time-slot {:en-GB "Time slot" :es "Franja horaria" :de-CH "Zeitfenster" :fr-CH "Créneau horaire"}
              :whole-day {:en-GB "Whole day" :es "Día completo" :de-CH "Ganzer Tag" :fr-CH "Journée entière"}
@@ -303,6 +305,8 @@
                                    :en-GB "Search"
                                    :es "Buscar"
                                    :fr-CH "Rechercher"}
+             :clear-input {:de-CH "Eingabe löschen" :en-GB "Clear input" :es "Borrar el texto" :fr-CH "Effacer la saisie"}
+             :clear-filter {:de-CH "Filter entfernen" :en-GB "Clear filter" :es "Quitar el filtro" :fr-CH "Supprimer le filtre"}
 
              :filter {:en-GB "Filter" :es "Filtro"
                       :de-CH "Filter"
@@ -336,7 +340,7 @@
                                   :timespan {:title {:en-GB "Timespan" :es "Período"
                                                      :de-CH "Zeitraum"
                                                      :fr-CH "Période"}
-                                             :undefined {:en-GB "undefined" :es "Sin definir"
+                                             :undefined {:en-GB "Not set" :es "Sin definir"
                                                          :de-CH "Unbestimmt"
                                                          :fr-CH "Indéfini"}
                                              :errors {:start-date-and-end-date-set {:en-GB "Start and end date must be set." :es "Se deben indicar la fecha de inicio y la de fin."
@@ -550,7 +554,7 @@
                         :timespan-modal {:title {:en-GB "Timespan" :es "Período" :de-CH "Zeitraum" :fr-CH "Période"}
                                          :from {:en-GB "From" :es "Desde" :de-CH "Von" :fr-CH "De"}
                                          :until {:en-GB "Until" :es "Hasta" :de-CH "Bis" :fr-CH "À"}
-                                         :undefined {:en-GB "undefined" :es "Sin definir" :de-CH "unbestimmt" :fr-CH "indéfini"}
+                                         :undefined {:en-GB "Not set" :es "Sin definir" :de-CH "unbestimmt" :fr-CH "indéfini"}
                                          :errors {:start-date-equal-or-before-end-date
                                                   {:en-GB "Start date must be equal to or before end date." :es "La fecha de inicio debe ser igual o anterior a la fecha de fin."
                                                    :de-CH "Startdatum muss entweder gleich oder vor dem Enddatum sein."
@@ -560,6 +564,8 @@
 
                         ;; Note: the JS text resolver does not support nesting
                         :js-component {:search-button-label {:en-GB "Search" :es "Buscar" :de-CH "Suchen" :fr-CH "Rechercher"}
+                                       :clear-input {:en-GB "Clear input" :es "Borrar el texto" :de-CH "Eingabe löschen" :fr-CH "Effacer la saisie"}
+                                       :clear-filter {:en-GB "Clear filter" :es "Quitar el filtro" :de-CH "Filter entfernen" :fr-CH "Supprimer le filtre"}
                                        :search-input-placeholder {:en-GB "Search term" :es "Término de búsqueda" :de-CH "Suchbegriff" :fr-CH "Terme de recherche"}
                                        :filter {:en-GB "Filter" :es "Filtro" :de-CH "Filter" :fr-CH "Filtrer"}
                                        :status-select-label {:en-GB "Status" :es "Estado" :de-CH "Status" :fr-CH "Statut"}
@@ -771,7 +777,7 @@
                                                             :es "Los horarios de atención no se muestran cuando se incluyen objetos de varios grupos de inventario. La disponibilidad se puede comprobar en el carrito después de agregar los objetos."
                                                             :fr-CH "Les heures d'ouverture ne sont pas affichées lorsque des articles de plusieurs pools d'inventaire sont inclus. La disponibilité peut être vérifiée dans le panier après l'ajout des articles."}
                                           :timespan {:de-CH "Zeitraum" :en-GB "Time span" :es "Período" :fr-CH "Période"}
-                                          :undefined {:de-CH "Unbestimmt" :en-GB "undefined" :es "Sin definir" :fr-CH "Indéfini"}
+                                          :undefined {:de-CH "Unbestimmt" :en-GB "Not set" :es "Sin definir" :fr-CH "Indéfini"}
                                           :validation {:start-after-end {:de-CH "Enddatum muss nach Beginndatum sein"
                                                                           :en-GB "End date must be after start date"
                                                                           :es "La fecha de fin debe ser posterior a la fecha de inicio"
@@ -957,7 +963,7 @@
                                                   :es "No se encontraron objetos"
                                                   :fr-CH "Aucun élément trouvé"}
                                  :timespan {:de-CH "Zeitraum" :en-GB "Time span" :es "Período" :fr-CH "Période"}
-                                 :undefined {:de-CH "Unbestimmt" :en-GB "undefined" :es "Sin definir" :fr-CH "Indéfini"}
+                                 :undefined {:de-CH "Unbestimmt" :en-GB "Not set" :es "Sin definir" :fr-CH "Indéfini"}
                                  :validation {:start-after-end {:de-CH "Enddatum muss nach Beginndatum sein"
                                                                  :en-GB "End date must be after start date"
                                                                  :es "La fecha de fin debe ser posterior a la fecha de inicio"

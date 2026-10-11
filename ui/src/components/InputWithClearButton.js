@@ -9,6 +9,7 @@ export default function InputWithClearButton({
   onClear,
   value,
   inputComponent: InputComponent = 'input',
+  clearLabel = 'Clear input',
   ...restProps
 }) {
   const inputRef = useRef()
@@ -37,7 +38,7 @@ export default function InputWithClearButton({
         <button
           className="btn position-absolute border-0"
           type="button"
-          aria-label="Clear input"
+          aria-label={clearLabel}
           onClick={clearClick}
           onMouseDown={buttonMouseDown}
           tabIndex="-1"

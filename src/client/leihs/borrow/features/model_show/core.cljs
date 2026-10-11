@@ -352,7 +352,7 @@
 
         (when availability-ready?
           [:> UI/Components.Design.ModalDialog {:shown shown?
-                                                :dismissible true
+                                                :dismissible true :closeLabel (t :!borrow.terms.close)
                                                 :on-dismiss on-cancel
                                                 :title (t :order-dialog/title)
                                                 :class "ui-booking-calendar"}
@@ -409,7 +409,7 @@
    {:shown (:success? order-panel-data)
     :title (t :order-success-notification/title)
     :onConfirm #(dispatch [::dismiss-order-success])
-    :dismissible true
+    :dismissible true :closeLabel (t :!borrow.terms.close)
     :onDismiss #(dispatch [::dismiss-order-success])}
    [:<>
     [:p.fw-bold

@@ -15,6 +15,7 @@ export default function ModalDialog({
   onDismiss = () => {},
   headerClassname,
   contentClassName,
+  closeLabel = 'Close',
   ...restProps
 }) {
   const baseId = id ? id : `Modal-${String(Math.random()).slice(2)}`
@@ -37,6 +38,7 @@ export default function ModalDialog({
     >
       <Modal.Header
         closeButton={dismissible}
+        closeLabel={closeLabel}
         className={cx('bg-light-shade border-bottom', { 'dismissible-modal-header': dismissible }, headerClassname)}
       >
         <Modal.Title id={labelId} as="div" className="m-auto fs-2">
