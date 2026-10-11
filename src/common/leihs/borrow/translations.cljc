@@ -772,6 +772,10 @@
                                                             :fr-CH "Les heures d'ouverture ne sont pas affichées lorsque des articles de plusieurs pools d'inventaire sont inclus. La disponibilité peut être vérifiée dans le panier après l'ajout des articles."}
                                           :timespan {:de-CH "Zeitraum" :en-GB "Time span" :es "Período" :fr-CH "Période"}
                                           :undefined {:de-CH "Unbestimmt" :en-GB "undefined" :es "Sin definir" :fr-CH "Indéfini"}
+                                          :validation {:start-after-end {:de-CH "Enddatum muss nach Beginndatum sein"
+                                                                          :en-GB "End date must be after start date"
+                                                                          :es "La fecha de fin debe ser posterior a la fecha de inicio"
+                                                                          :fr-CH "La date de fin doit être postérieure à la date de début"}}
                                           :from {:de-CH "Von" :en-GB "From" :es "Desde" :fr-CH "De"}
                                           :until {:de-CH "Bis" :en-GB "Until" :es "Hasta" :fr-CH "À"}
                                           :order-for {:de-CH "Bestellung für" :en-GB "Order for" :es "Pedido para" :fr-CH "Commande pour"}
@@ -954,6 +958,10 @@
                                                   :fr-CH "Aucun élément trouvé"}
                                  :timespan {:de-CH "Zeitraum" :en-GB "Time span" :es "Período" :fr-CH "Période"}
                                  :undefined {:de-CH "Unbestimmt" :en-GB "undefined" :es "Sin definir" :fr-CH "Indéfini"}
+                                 :validation {:start-after-end {:de-CH "Enddatum muss nach Beginndatum sein"
+                                                                 :en-GB "End date must be after start date"
+                                                                 :es "La fecha de fin debe ser posterior a la fecha de inicio"
+                                                                 :fr-CH "La date de fin doit être postérieure à la date de début"}}
                                  :from {:de-CH "Von" :en-GB "From" :es "Desde" :fr-CH "De"}
                                  :until {:de-CH "Bis" :en-GB "Until" :es "Hasta" :fr-CH "À"}
                                  :order-for {:de-CH "Bestellung für" :en-GB "Order for" :es "Pedido para" :fr-CH "Commande pour"}
