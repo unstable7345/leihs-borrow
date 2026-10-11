@@ -86,10 +86,13 @@
    [spinner] " " loading-text])
 
 ; ; Intl stuff
-(defn format-date [style date]
-  (let [date (if (= (.-constructor date) js/Date) date (js/Date. date))]
-    ; style oneof :full :long :medium :short
-    (-> (js/Intl.DateTimeFormat. #_nil {:dateStyle style}) (.format date))))
+(defn format-date
+  ([style date] (format-date style date js/undefined))
+  ([style date locale]
+   (let [date (if (= (.-constructor date) js/Date) date (js/Date. date))]
+     ; style oneof :full :long :medium :short
+     ; locale: the user's (e.g. "es"), else the browser's
+     (-> (js/Intl.DateTimeFormat. locale {:dateStyle style}) (.format date)))))
 
 (def decorate-file-size-formatter
   (js/Intl.NumberFormat.

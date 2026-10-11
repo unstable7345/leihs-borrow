@@ -243,4 +243,4 @@
                  [:> UI/Components.Design.DownloadLink
                   {:href (:print-url contract)}
                   (t :!borrow.terms/contract) " " (:compact-id contract) " "
-                  [:span (str "(" (ui/format-date :short (:created-at contract)) ")")]]]))]])]])]))
+                  [:span (str "(" (ui/format-date :short (:created-at contract) text-locale) ")")]]]))]])]])]))
