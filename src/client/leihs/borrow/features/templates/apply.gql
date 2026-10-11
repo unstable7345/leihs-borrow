@@ -32,6 +32,8 @@ mutation applyTemplate(
           }
         }
         startDate
+        startTime
+        endTime
         status
         user {
           id

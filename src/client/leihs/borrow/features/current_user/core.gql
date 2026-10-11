@@ -46,6 +46,8 @@ query getCurrentUser(
             }
           }
           startDate
+          startTime
+          endTime
           endDate
         }
         invalidReservationIds
