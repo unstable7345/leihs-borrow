@@ -25,30 +25,33 @@
        (jdbc-query tx)))
 
 (defn get
-  "`window`: [start-time end-time] of a time slot, nil for whole days."
+  "`window`: [start-time end-time] asked for on each day, nil for whole days."
   [tx start-date end-date pool-id user-id model-id exclude-res-ids window]
   (let [today (ch/local-date)
         start-date-jt (ch/local-date start-date)
         start-date-jt* (if (t/before? start-date-jt today) today start-date-jt)
         end-date-jt (ch/local-date end-date)
-        changes-dates (->> (ch/main-per-window tx model-id pool-id exclude-res-ids window)
-                           (mapcat keys)
-                           distinct
+        changes-dates (->> (ch/main tx model-id pool-id exclude-res-ids)
+                           keys
                            sort)
-        changes-dates-between-start-and-end-date (filter #(and (t/before? start-date-jt* %)
-                                                               (t/before? % end-date-jt))
-                                                         changes-dates)
-        dates-pairs (as-> changes-dates-between-start-and-end-date <> ; [3 5]
-                      (cons start-date-jt* <>) ; [1 3 5]
-                      (vec <>)
-                      (conj <> end-date-jt) ; [1 3 5 7]
-                      (mapv #(vector %1 %2) <> (drop 1 (cycle <>))) ; [[1 3] [3 5] [5 7] [7 1]]
-                      (butlast <>) ; [[1 3] [3 5] [5 7]]
-                      (map (fn [[d1 d2]]
-                             [d1 (if (= end-date-jt d2)
-                                   d2
-                                   (t/minus d2 (t/days 1)))])
-                           <>)) ; [[1 2] [3 4] [5 6]]
+        ;; the availability only changes on these dates, so it is computed
+        ;; once for each run of days between them: [1 3 5] up to 7 ->
+        ;; [[1 2] [3 4] [5 7]]
+        segment-starts (->> changes-dates
+                            (filter #(and (t/before? start-date-jt* %)
+                                          (not (t/after? % end-date-jt))))
+                            (cons start-date-jt*))
+        dates-pairs (as-> segment-starts <>
+                      (map (fn [from next-from]
+                             [from (if next-from (t/minus next-from (t/days 1)) end-date-jt)])
+                           <> (concat (rest <>) [nil]))
+                      ;; a window is asked for on each day, not from the
+                      ;; first day to the last one
+                      (if window
+                        (mapcat (fn [[d1 d2]]
+                                  (map #(vector % %) (ch/explode-date-range d1 d2)))
+                                <>)
+                        <>))
         result-1 (->> dates-pairs
                       (map (fn [[from-date to-date]]
                              (let [quantity (c/maximum-available-in-pool-and-period-summed-for-groups
