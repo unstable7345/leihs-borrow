@@ -38,7 +38,7 @@
                 one {# item}
                 other {# items}
                 }"
-      :es "{itemCount, plural, =0 {Ningún objeto} one {# objeto} other {# objetos} }"
+      :es "{itemCount, plural, =0 {Ningún artículo} one {# artículo} other {# artículos} }"
       :fr-CH "{itemCount, plural,
                 =0 {Aucun objet}
                 =1 {# objet}
@@ -78,7 +78,7 @@
              :whole-day {:en-GB "Whole days" :es "Días completos" :de-CH "Ganze Tage" :fr-CH "Journées entières"}
              :pickup-time {:en-GB "Pickup at" :es "Hora de retiro" :de-CH "Abholung um" :fr-CH "Retrait à"}
              :return-time {:en-GB "Return at" :es "Hora de devolución" :de-CH "Rückgabe um" :fr-CH "Retour à"}
-             :by-hours-info {:en-GB "You pick the item up on the first day and return it on the last day at the chosen times." :es "Retiras el objeto el primer día y lo devuelves el último día a las horas elegidas." :de-CH "Du holst den Gegenstand am ersten Tag ab und gibst ihn am letzten Tag zur gewählten Zeit zurück." :fr-CH "Tu retires l'article le premier jour et le retournes le dernier jour aux heures choisies."}
+             :by-hours-info {:en-GB "You pick the item up on the first day and return it on the last day at the chosen times." :es "Retiras el artículo el primer día y lo devuelves el último día a las horas elegidas." :de-CH "Du holst den Gegenstand am ersten Tag ab und gibst ihn am letzten Tag zur gewählten Zeit zurück." :fr-CH "Tu retires l'article le premier jour et le retournes le dernier jour aux heures choisies."}
              :whole-day-hours-info {:en-GB "Whole days, from {startTime} on the first day until {endTime} on the last day." :es "Días completos, desde las {startTime} del primer día hasta las {endTime} del último." :de-CH "Ganze Tage, von {startTime} am ersten Tag bis {endTime} am letzten Tag." :fr-CH "Journées entières, de {startTime} le premier jour jusqu'à {endTime} le dernier jour."}
              :max-hours-info {:en-GB "{hours, plural, one {You can reserve for at most # hour in a row.} other {You can reserve for at most # hours in a row.}}" :es "{hours, plural, one {Puedes reservar como máximo # hora seguida.} other {Puedes reservar como máximo # horas seguidas.}}" :de-CH "{hours, plural, one {Du kannst höchstens # Stunde am Stück reservieren.} other {Du kannst höchstens # Stunden am Stück reservieren.}}" :fr-CH "{hours, plural, one {Tu peux réserver au maximum # heure d'affilée.} other {Tu peux réserver au maximum # heures d'affilée.}}"}
              :no-max-hours-info {:en-GB "There is no limit of hours." :es "No hay un límite de horas." :de-CH "Es gibt keine Stundenbegrenzung." :fr-CH "Il n'y a pas de limite d'heures."}}
@@ -155,12 +155,12 @@
                 {:de-CH
                  "Gegenstand ist am {startDate, date, small} nicht in der gewünschten Menge verfügbar"
                  :en-GB "Item is not available in the requested quantity on {startDate, date, small}."
-                 :es "El objeto no está disponible en la cantidad solicitada el {startDate, date, small}."
+                 :es "El artículo no está disponible en la cantidad solicitada el {startDate, date, small}."
                  :fr-CH "L'article n'est pas disponible dans la quantité demandée le {startDate, date, small}."}
                 :quantity-to-large-in-range
                 {:de-CH "Gegenstand ist in diesem Zeitraum nicht in der gewünschten Menge verfügbar"
                  :en-GB "Item is not available in the desired quantity during this period"
-                 :es "El objeto no está disponible en la cantidad deseada durante este período"
+                 :es "El artículo no está disponible en la cantidad deseada durante este período"
                  :fr-CH "L'article n'est pas disponible dans la quantité souhaitée durant cette période"}
 
                 :pool-closed-at-start-date
@@ -208,7 +208,7 @@
                 :item-not-available-in-pool
                 {:de-CH "Gegenstand in diesem Inventarpark nicht verfügbar"
                  :en-GB "Item not available in this inventory pool"
-                 :es "Objeto no disponible en este grupo de inventario"
+                 :es "Artículo no disponible en este grupo de inventario"
                  :fr-CH "Article non disponible dans ce pool d'inventaire"}
                 :unknown-pool
                 {:de-CH "Unbekannter Inventarpark"
@@ -224,7 +224,7 @@
               :categories {:en-GB "Categories" :es "Categorías"
                            :de-CH "Kategorien"
                            :fr-CH "Catégories"}
-              :no-reservable-items {:en-GB "No reservable items found" :es "No se encontraron objetos reservables"
+              :no-reservable-items {:en-GB "No reservable items found" :es "No se encontraron artículos reservables"
                                     :de-CH "Keine reservierbaren Gegenstände gefunden"
                                     :fr-CH "Aucun article réservable trouvé"}
               :check-available-pools {:en-GB "Check available inventory pools" :es "Ver los grupos de inventario disponibles"
@@ -236,7 +236,7 @@
     :categories {:sub-categories {:en-GB "Sub-categories" :es "Subcategorías"
                                   :de-CH "Unterkategorien"
                                   :fr-CH "Sous-catégories"}
-                 :items {:en-GB "Items" :es "Objetos"
+                 :items {:en-GB "Items" :es "Artículos"
                          :de-CH "Gegenstände"
                          :fr-CH "Articles"}
                  :category-root {:en-GB "All Categories" :es "Todas las categorías"
@@ -307,7 +307,7 @@
     :favorite-models {:title {:en-GB "Favorites" :es "Favoritos"
                               :de-CH "Favoriten"
                               :fr-CH "Favoris"}
-                      :items {:en-GB "Items" :es "Objetos"
+                      :items {:en-GB "Items" :es "Artículos"
                               :de-CH "Gegenstände"
                               :fr-CH "Éléments"}
                       :no-favorites {:en-GB "No favorites added yet" :es "Todavía no se agregaron favoritos"
@@ -350,7 +350,7 @@
                                          :fr-CH "Disponibilité de/à"}
              :availability-label {:de-CH "{quantity} Stück verfügbar {startDate, date, narrow} – {endDate, date, narrow}",
                                   :en-GB "{quantity} {quantity, plural, =1 {item} other {items}} available {startDate, date, narrow} – {endDate, date, narrow}"
-                                  :es "{quantity} {quantity, plural, =1 {objeto disponible} other {objetos disponibles}} {startDate, date, narrow} – {endDate, date, narrow}"
+                                  :es "{quantity} {quantity, plural, =1 {artículo disponible} other {artículos disponibles}} {startDate, date, narrow} – {endDate, date, narrow}"
                                   :fr-CH "{quantity} {quantity, plural, =1 {pièce disponible} other {pièces disponibles}} du {startDate, date, narrow} au {endDate, date, narrow}"}
 
              :availability-modal {:title {:en-GB "Filter Availability" :es "Filtrar disponibilidad"
@@ -441,7 +441,7 @@
            :language {:section-title {:en-GB "Language" :es "Idioma"
                                       :de-CH "Sprache"
                                       :fr-CH "Langue"}}}
-    :model-show {:loading {:en-GB "Loading item" :es "Cargando objeto"
+    :model-show {:loading {:en-GB "Loading item" :es "Cargando artículo"
                            :de-CH "Gegenstand wird geladen"
                            :fr-CH "Chargement de l'élément"}
                  :description {:en-GB "Description" :es "Descripción"
@@ -453,10 +453,10 @@
                  :documents {:en-GB "Documents" :es "Documentos"
                              :de-CH "Dokumente"
                              :fr-CH "Documents"}
-                 :compatibles {:en-GB "Compatible Items" :es "Objetos compatibles"
+                 :compatibles {:en-GB "Compatible Items" :es "Artículos compatibles"
                                :de-CH "Ergänzende Gegenstände"
                                :fr-CH "Éléments compatibles"}
-                 :add-item-to-cart {:en-GB "Add item" :es "Agregar objeto"
+                 :add-item-to-cart {:en-GB "Add item" :es "Agregar artículo"
                                     :de-CH "Gegenstand hinzufügen"
                                     :fr-CH "Ajouter l'élément"}
                  :add-to-favorites {:en-GB "Add to favorites" :es "Agregar a favoritos"
@@ -471,16 +471,16 @@
                  :next-image {:en-GB "Next image" :es "Imagen siguiente"
                               :de-CH "Nächstes Bild"
                               :fr-CH "Image suivante"}
-                 :not-available-for-current-profile {:en-GB "Item not available for current profile" :es "Objeto no disponible para el perfil actual"
+                 :not-available-for-current-profile {:en-GB "Item not available for current profile" :es "Artículo no disponible para el perfil actual"
                                                      :de-CH "Gegenstand für das aktuelle Profil nicht verfügbar"
                                                      :fr-CH "Élément non disponible pour le profil actuel"}
-                 :order-dialog {:title {:en-GB "Add item" :es "Agregar objeto" :de-CH "Gegenstand hinzufügen" :fr-CH "Ajouter l'élément"}
+                 :order-dialog {:title {:en-GB "Add item" :es "Agregar artículo" :de-CH "Gegenstand hinzufügen" :fr-CH "Ajouter l'élément"}
                                 :cancel {:en-GB "Cancel" :es "Cancelar" :de-CH "Abbrechen" :fr-CH "Annuler"}
                                 :add {:en-GB "Add" :es "Agregar" :de-CH "Hinzufügen" :fr-CH "Ajouter"}}
-                 :order-success-notification {:title {:en-GB "Item added" :es "Objeto agregado" :de-CH "Gegenstand hinzugefügt" :fr-CH "Élément ajouté"}
-                                              :item-was-added {:en-GB "The item was added to the cart" :es "El objeto se agregó al carrito" :de-CH "Der Gegenstand wurde zum Warenkorb hinzugefügt" :fr-CH "L'élément a été ajouté au panier"}}}
+                 :order-success-notification {:title {:en-GB "Item added" :es "Artículo agregado" :de-CH "Gegenstand hinzugefügt" :fr-CH "Élément ajouté"}
+                                              :item-was-added {:en-GB "The item was added to the cart" :es "El artículo se agregó al carrito" :de-CH "Der Gegenstand wurde zum Warenkorb hinzugefügt" :fr-CH "L'élément a été ajouté au panier"}}}
     :models {:title {:en-GB "Search results" :es "Resultados de la búsqueda" :de-CH "Suchresultate" :fr-CH "Résultats de recherche"}
-             :no-items-found {:en-GB "No items found" :es "No se encontraron objetos"
+             :no-items-found {:en-GB "No items found" :es "No se encontraron artículos"
                               :de-CH "Keine Gegenstände gefunden"
                               :fr-CH "Aucun élément trouvé"}}
     :pagination {:load-more {:en-GB "Load more" :es "Cargar más"
@@ -498,7 +498,7 @@
             :access-suspended {:en-GB "Access suspended" :es "Acceso suspendido"
                                :de-CH "Zugang gesperrt"
                                :fr-CH "Accès suspendu"}
-            :no-reservable-models {:en-GB "No reservable items" :es "Sin objetos reservables"
+            :no-reservable-models {:en-GB "No reservable items" :es "Sin artículos reservables"
                                    :de-CH "Keine reservierbaren Gegenstände"
                                    :fr-CH "Aucun élément réservable"}
             :maximum-reservation-duration {:en-GB "Maximum reservation duration {days} days" :es "Duración máxima de una reserva: {days} días"
@@ -599,14 +599,14 @@
                                         :IN_APPROVAL {:de-CH "Genehmigung" :en-GB "Approval" :es "Aprobación" :fr-CH "Approbation"}
                                         :TO_PICKUP {:de-CH "Abholung" :en-GB "Pickup" :es "Retiro" :fr-CH "Retrait"}
                                         :TO_RETURN {:de-CH "Rückgabe" :en-GB "Return" :es "Devolución" :fr-CH "Retour"}
-                                        :RETURNED {:de-CH "Alle Gegenstände zurückgebracht" :en-GB "All items returned" :es "Todos los objetos devueltos" :fr-CH "Tous les éléments ont été retournés"}
+                                        :RETURNED {:de-CH "Alle Gegenstände zurückgebracht" :en-GB "All items returned" :es "Todos los artículos devueltos" :fr-CH "Tous les éléments ont été retournés"}
                                         :REJECTED {:de-CH "Bestellung wurde abgelehnt" :en-GB "Order was rejected" :es "El pedido fue rechazado" :fr-CH "La commande a été refusée"}
                                         :EXPIRED-UNAPPROVED {:de-CH "Abgelaufen (nicht genehmigt)" :en-GB "Expired (not approved)" :es "Vencido (no aprobado)" :fr-CH "Expiré (non approuvé)"}
                                         :CANCELED {:de-CH "Bestellung wurde storniert" :en-GB "Order was canceled" :es "El pedido fue cancelado" :fr-CH "La commande a été annulée"}
                                         :EXPIRED {:de-CH "Abgelaufen (nicht abgeholt)" :en-GB "Expired (not picked up)" :es "Vencido (no retirado)" :fr-CH "Expiré (non retiré)"}
                                         :OVERDUE {:de-CH "Rückgabe überfällig" :en-GB "Overdue" :es "Atrasado" :fr-CH "Retour en retard"}}
 
-              :x-items {:en-GB "{itemCount, plural, =1 {{itemCount} item} other {{itemCount} items}}" :es "{itemCount, plural, =1 {{itemCount} objeto} other {{itemCount} objetos}}"
+              :x-items {:en-GB "{itemCount, plural, =1 {{itemCount} item} other {{itemCount} items}}" :es "{itemCount, plural, =1 {{itemCount} artículo} other {{itemCount} artículos}}"
                         :de-CH "{itemCount, plural, =1 {{itemCount} Gegenstand} other {{itemCount} Gegenstände}}"
                         :fr-CH "{itemCount, plural,
                                   =1 {{itemCount} élément}
@@ -627,7 +627,7 @@
                                 other {{itemCount, plural,
                                   =1 {Between {fromDate, date, short} and {untilDate, date, short}, {itemCount} item}
                                   other {Between {fromDate, date, short} and {untilDate, date, short}, {itemCount} items}}}}"
-                      :es "{totalDays, plural, =1 {{itemCount, plural, =1 {El {fromDate, date, short}, {itemCount} objeto} other {El {fromDate, date, short}, {itemCount} objetos}}} other {{itemCount, plural, =1 {Entre el {fromDate, date, short} y el {untilDate, date, short}, {itemCount} objeto} other {Entre el {fromDate, date, short} y el {untilDate, date, short}, {itemCount} objetos}}}}"
+                      :es "{totalDays, plural, =1 {{itemCount, plural, =1 {El {fromDate, date, short}, {itemCount} artículo} other {El {fromDate, date, short}, {itemCount} artículos}}} other {{itemCount, plural, =1 {Entre el {fromDate, date, short} y el {untilDate, date, short}, {itemCount} artículo} other {Entre el {fromDate, date, short} y el {untilDate, date, short}, {itemCount} artículos}}}}"
                       :fr-CH "{totalDays, plural,
                                 =1 {{itemCount, plural,
                                   =1 {Le {fromDate, date, short}, {itemCount} élément}
@@ -649,7 +649,7 @@
                                 other {{itemCount, plural,
                                   =1 {Between {fromDate, date, short} and {untilDate, date, short}, {itemCount} item}
                                   other {Between {fromDate, date, short} and {untilDate, date, short}, {itemCount} items}}}}"
-                        :es "{totalDays, plural, =1 {{itemCount, plural, =1 {El {fromDate, date, short}, {itemCount} objeto} other {El {fromDate, date, short}, {itemCount} objetos}}} other {{itemCount, plural, =1 {Entre el {fromDate, date, short} y el {untilDate, date, short}, {itemCount} objeto} other {Entre el {fromDate, date, short} y el {untilDate, date, short}, {itemCount} objetos}}}}"
+                        :es "{totalDays, plural, =1 {{itemCount, plural, =1 {El {fromDate, date, short}, {itemCount} artículo} other {El {fromDate, date, short}, {itemCount} artículos}}} other {{itemCount, plural, =1 {Entre el {fromDate, date, short} y el {untilDate, date, short}, {itemCount} artículo} other {Entre el {fromDate, date, short} y el {untilDate, date, short}, {itemCount} artículos}}}}"
                         :fr-CH "{totalDays, plural,
                                 =1 {{itemCount, plural,
                                   =1 {Le {fromDate, date, short}, {itemCount} élément}
@@ -670,7 +670,7 @@
                           =1 {{doneCount} of {totalCount} item approved}
                           other {{doneCount} of {totalCount} items approved}
                         }"
-                 :es "{totalCount, plural, =1 {{doneCount} de {totalCount} objeto aprobado} other {{doneCount} de {totalCount} objetos aprobados} }"
+                 :es "{totalCount, plural, =1 {{doneCount} de {totalCount} artículo aprobado} other {{doneCount} de {totalCount} artículos aprobados} }"
                  :fr-CH "{totalCount, plural,
                           =1 {{doneCount} sur {totalCount} élément approuvé}
                           other {{doneCount} sur {totalCount} éléments approuvés}}"}
@@ -683,7 +683,7 @@
                           =1 {{doneCount} of {totalCount} item picked up}
                           other {{doneCount} of {totalCount} items picked up}
                         }"
-                 :es "{totalCount, plural, =1 {{doneCount} de {totalCount} objeto retirado} other {{doneCount} de {totalCount} objetos retirados} }"
+                 :es "{totalCount, plural, =1 {{doneCount} de {totalCount} artículo retirado} other {{doneCount} de {totalCount} artículos retirados} }"
                  :fr-CH "{totalCount, plural,
                           =1 {{doneCount} sur {totalCount} élément retiré}
                           other {{doneCount} sur {totalCount} éléments retirés}}"}
@@ -696,7 +696,7 @@
                           =1 {{doneCount} of {totalCount} item returned}
                           other {{doneCount} of {totalCount} items returned}
                         }"
-                 :es "{totalCount, plural, =1 {{doneCount} de {totalCount} objeto devuelto} other {{doneCount} de {totalCount} objetos devueltos} }"
+                 :es "{totalCount, plural, =1 {{doneCount} de {totalCount} artículo devuelto} other {{doneCount} de {totalCount} artículos devueltos} }"
                  :fr-CH "{totalCount, plural,
                           =1 {{doneCount} sur {totalCount} élément retourné}
                           other {{doneCount} sur {totalCount} éléments retournés}}"}}
@@ -715,7 +715,7 @@
                   :purpose {:de-CH "Zweck" :en-GB "Purpose" :es "Motivo" :fr-CH "But"}
                   :contact-details {:de-CH "Kontaktdaten" :en-GB "Contact details" :es "Datos de contacto" :fr-CH "Coordonnées"}
                   :pools-section-title {:de-CH "Inventarparks" :en-GB "Inventory pools" :es "Grupos de inventario" :fr-CH "Pools d'inventaire"}
-                  :items-section-title {:de-CH "Gegenstände" :en-GB "Items" :es "Objetos" :fr-CH "Éléments"}
+                  :items-section-title {:de-CH "Gegenstände" :en-GB "Items" :es "Artículos" :fr-CH "Éléments"}
                   :documents-section-title {:de-CH "Dokumente" :en-GB "Documents" :es "Documentos" :fr-CH "Documents"}
                   :user-or-delegation-section-title {:de-CH "Bestellung für" :en-GB "Order for" :es "Pedido para" :fr-CH "Commande pour"}
 
@@ -766,14 +766,14 @@
                                         :confirm {:de-CH "Stornieren" :en-GB "Cancel order" :es "Cancelar pedido" :fr-CH "Annuler la commande"}
                                         :cancel {:de-CH "Abbrechen" :en-GB "Abort" :es "Volver" :fr-CH "Abandonner"}}
                   :repeat-order {:repeat-action-label {:de-CH "Bestellung wiederholen" :en-GB "Repeat order" :es "Repetir pedido" :fr-CH "Répéter la commande"}
-                                 :dialog {:title {:de-CH "Gegenstände hinzufügen" :en-GB "Add items" :es "Agregar objetos" :fr-CH "Ajouter des articles"}
+                                 :dialog {:title {:de-CH "Gegenstände hinzufügen" :en-GB "Add items" :es "Agregar artículos" :fr-CH "Ajouter des articles"}
                                           :info {:de-CH "{count, plural,
                                                          =1 {Ein Gegenstand wird zum Warenkorb hinzugefügt.}
                                                          other {# Gegenstände werden zum Warenkorb hinzugefügt.}}"
                                                  :en-GB "{count, plural,
                                                          =1 {One item will be added to the cart.}
                                                          other {# items will be added to the cart.}}"
-                                                 :es "{count, plural, =1 {Se agregará un objeto al carrito.} other {Se agregarán # objetos al carrito.}}"
+                                                 :es "{count, plural, =1 {Se agregará un artículo al carrito.} other {Se agregarán # artículos al carrito.}}"
                                                  :fr-CH "{count, plural,
                                                          =1 {Un article sera ajouté au panier.}
                                                          other {# articles seront ajoutés au panier.}}"}
@@ -793,7 +793,7 @@
                                                          other {Remarque : # options ne peuvent être ajoutées que par le guichet de prêt.}}"}
                                           :info-multi-pool {:de-CH "Öffnungszeiten werden nicht angezeigt, wenn Gegenstände aus mehreren Inventarparks enthalten sind. Die Verfügbarkeiten können nach dem Hinzufügen im Warenkorb geprüft werden."
                                                             :en-GB "Opening hours are not displayed when items from multiple inventory pools are included. Availability can be checked in the shopping cart after adding the items."
-                                                            :es "Los horarios de atención no se muestran cuando se incluyen objetos de varios grupos de inventario. La disponibilidad se puede comprobar en el carrito después de agregar los objetos."
+                                                            :es "Los horarios de atención no se muestran cuando se incluyen artículos de varios grupos de inventario. La disponibilidad se puede comprobar en el carrito después de agregar los artículos."
                                                             :fr-CH "Les heures d'ouverture ne sont pas affichées lorsque des articles de plusieurs pools d'inventaire sont inclus. La disponibilité peut être vérifiée dans le panier après l'ajout des articles."}
                                           :timespan {:de-CH "Zeitraum" :en-GB "Time span" :es "Período" :fr-CH "Période"}
                                           :undefined {:de-CH "Unbestimmt" :en-GB "Not set" :es "Sin definir" :fr-CH "Indéfini"}
@@ -806,14 +806,14 @@
                                           :order-for {:de-CH "Bestellung für" :en-GB "Order for" :es "Pedido para" :fr-CH "Commande pour"}
                                           :cancel {:de-CH "Abbrechen" :en-GB "Cancel" :es "Cancelar" :fr-CH "Annuler"}
                                           :submit {:de-CH "Hinzufügen" :en-GB "Add" :es "Agregar" :fr-CH "Ajouter"}}
-                                 :success-notification {:title {:de-CH "Gegenstände hinzugefügt" :en-GB "Items added" :es "Objetos agregados" :fr-CH "Articles ajoutés"}
+                                 :success-notification {:title {:de-CH "Gegenstände hinzugefügt" :en-GB "Items added" :es "Artículos agregados" :fr-CH "Articles ajoutés"}
                                                         :message {:de-CH "{count, plural,
                                                                           =1 {# Gegenstand wurde zum Warenkorb hinzugefügt und kann nun dort überprüft werden.}
                                                                           other {# Gegenstände wurden zum Warenkorb hinzugefügt und können nun dort überprüft werden.}}"
                                                                   :en-GB "{count, plural,
                                                                           =1 {# item was added to the cart and can be reviewed/edited there.}
                                                                           other {# items were added to the cart and can be reviewed/edited there.}}"
-                                                                  :es "{count, plural, =1 {Se agregó # objeto al carrito, donde puede revisarlo o modificarlo.} other {Se agregaron # objetos al carrito, donde puede revisarlos o modificarlos.}}"
+                                                                  :es "{count, plural, =1 {Se agregó # artículo al carrito, donde puede revisarlo o modificarlo.} other {Se agregaron # artículos al carrito, donde puede revisarlos o modificarlos.}}"
                                                                   :fr-CH "{count, plural,
                                                                           =1 {# article a été ajouté au panier et peut y être révisé/modifié.}
                                                                           other {# articles ont été ajoutés au panier et peuvent y être révisés/modifiés.}}"}
@@ -850,20 +850,20 @@
                                                     other {# minutes restantes}}"}
                                 :time-left-last-minute {:en-GB "Less than one minute left" :es "Queda menos de un minuto"
                                                         :de-CH "Weniger als eine Minute übrig" :fr-CH "Moins d'une minute restante"}
-                                :no-valid-items {:en-GB "No valid items" :es "Sin objetos válidos"
+                                :no-valid-items {:en-GB "No valid items" :es "Sin artículos válidos"
                                                  :de-CH "Keine gültigen Gegenstände" :fr-CH "Aucun élément valide"}
                                 :expired {:en-GB "Expired" :es "Vencido"
                                           :de-CH "Abgelaufen" :fr-CH "Expiré"}
                                 :reset {:en-GB "Reset time limit" :es "Reiniciar el tiempo límite"
                                         :de-CH "Zeitlimit zurückstellen" :fr-CH "Réinitialiser la limite de temps"}}
                     :delegation {:section-title {:de-CH "Bestellung für" :en-GB "Order for" :es "Pedido para" :fr-CH "Commande pour"}}
-                    :line {:section-title {:en-GB "Items" :es "Objetos"
+                    :line {:section-title {:en-GB "Items" :es "Artículos"
                                            :de-CH "Gegenstände" :fr-CH "Éléments"}
                            :total {:en-GB "Total" :es "Total"
                                    :de-CH "Total" :fr-CH "Total"}
                            :total-models {:en-GB "Model(s)" :es "Modelo(s)"
                                           :de-CH "Modell(e)" :fr-CH "Modèle(s)"}
-                           :total-items {:en-GB "Item(s)" :es "Objeto(s)"
+                           :total-items {:en-GB "Item(s)" :es "Artículo(s)"
                                          :de-CH "Gegenstand/Gegenstände" :fr-CH "Élément(s)"}
                            :from {:en-GB "from" :es "desde"
                                   :de-CH "aus" :fr-CH "de"}
@@ -874,7 +874,7 @@
                            :invalid-items-warning {:en-GB "{invalidItemsCount, plural,
                                                            =1 {# invalid item}
                                                            other {# invalid items}
-                                                           }" :es "{invalidItemsCount, plural, =1 {# objeto no válido} other {# objetos no válidos} }"
+                                                           }" :es "{invalidItemsCount, plural, =1 {# artículo no válido} other {# artículos no válidos} }"
                                                    :de-CH "{invalidItemsCount, plural,
                                                            =1 {# Gegenstand ungültig}
                                                            other {# Gegenstände ungültig}
@@ -907,7 +907,7 @@
                     :order-overview {:en-GB "Cart" :es "Carrito"
                                      :de-CH "Warenkorb"
                                      :fr-CH "Panier"}
-                    :empty-order {:en-GB "No items added" :es "No se agregaron objetos"
+                    :empty-order {:en-GB "No items added" :es "No se agregaron artículos"
                                   :de-CH "Noch keine Gegenstände hinzugefügt"
                                   :fr-CH "Aucun article ajouté"}
                     :borrow-items {:en-GB "Go to catalog" :es "Ir al catálogo"
@@ -949,7 +949,7 @@
                                                            :en-GB "No templates available for the current profile"
                                                            :es "No hay plantillas disponibles para el perfil actual" :fr-CH "Aucun modèle disponible pour le profil actuel"}}
                 :show {:title {:de-CH "Vorlage" :en-GB "Template" :es "Plantilla" :fr-CH "Modèle"}
-                       :items {:de-CH "Gegenstände" :en-GB "Items" :es "Objetos" :fr-CH "Éléments"}
+                       :items {:de-CH "Gegenstände" :en-GB "Items" :es "Artículos" :fr-CH "Éléments"}
                        :item-title {:de-CH "{itemCount}× {itemName}" :en-GB "{itemCount}× {itemName}" :es "{itemCount}× {itemName}" :fr-CH "{itemCount}× {itemName}"}
                        :template-not-available {:de-CH "Diese Vorlage ist für das aktuelle Profil nicht verfügbar"
                                                 :en-GB "This template is not available for the current profile"
@@ -959,27 +959,27 @@
                                         :es "El acceso a {poolName} está suspendido" :fr-CH "L'accès à {poolName} est suspendu"}
                        :some-items-not-available {:de-CH "Die Gegenstände in grauer Schrift sind für das aktuelle Profil nicht reservierbar"
                                                   :en-GB "The items shown in grey font are not reservable for the current profile"
-                                                  :es "Los objetos en gris no se pueden reservar con el perfil actual" :fr-CH "Les éléments affichés en gris ne sont pas réservables pour le profil actuel"}
+                                                  :es "Los artículos en gris no se pueden reservar con el perfil actual" :fr-CH "Les éléments affichés en gris ne sont pas réservables pour le profil actuel"}
                        :no-items-available {:de-CH "Diese Vorlage enthält keine Gegenstände, welche für das aktuelle Profil reservierbar sind"
                                             :en-GB "This template does not contain any items that can be reserved for the current profile"
-                                            :es "Esta plantilla no contiene objetos que se puedan reservar con el perfil actual" :fr-CH "Ce modèle ne contient aucun élément réservable pour le profil actuel"}
+                                            :es "Esta plantilla no contiene artículos que se puedan reservar con el perfil actual" :fr-CH "Ce modèle ne contient aucun élément réservable pour le profil actuel"}
                        :apply-button-label {:de-CH "Gegenstände bestellen"
                                             :en-GB "Order items"
-                                            :es "Pedir los objetos" :fr-CH "Commander les éléments"}}
-                :apply {:dialog {:title {:de-CH "Gegenstände hinzufügen" :en-GB "Add items" :es "Agregar objetos" :fr-CH "Ajouter des éléments"}
+                                            :es "Pedir los artículos" :fr-CH "Commander les éléments"}}
+                :apply {:dialog {:title {:de-CH "Gegenstände hinzufügen" :en-GB "Add items" :es "Agregar artículos" :fr-CH "Ajouter des éléments"}
                                  :info {:de-CH "{count, plural,
                                                          =1 {Ein Gegenstand wird zum Warenkorb hinzugefügt.}
                                                          other {# Gegenstände werden zum Warenkorb hinzugefügt.}}"
                                         :en-GB "{count, plural,
                                                          =1 {One item will be added to the cart.}
                                                          other {# items will be added to the cart.}}"
-                                        :es "{count, plural, =1 {Se agregará un objeto al carrito.} other {Se agregarán # objetos al carrito.}}"
+                                        :es "{count, plural, =1 {Se agregará un artículo al carrito.} other {Se agregarán # artículos al carrito.}}"
                                         :fr-CH "{count, plural,
                                                          =1 {Un élément sera ajouté au panier.}
                                                          other {# éléments seront ajoutés au panier.}}"}
                                  :error-no-items {:de-CH "Keine Gegenstände gefunden"
                                                   :en-GB "No items found"
-                                                  :es "No se encontraron objetos"
+                                                  :es "No se encontraron artículos"
                                                   :fr-CH "Aucun élément trouvé"}
                                  :timespan {:de-CH "Zeitraum" :en-GB "Time span" :es "Período" :fr-CH "Période"}
                                  :undefined {:de-CH "Unbestimmt" :en-GB "Not set" :es "Sin definir" :fr-CH "Indéfini"}
@@ -993,14 +993,14 @@
                                  :pool {:de-CH "Inventarpark" :en-GB "Inventory pool" :es "Grupo de inventario" :fr-CH "Pool d'inventaire"}
                                  :cancel {:de-CH "Abbrechen" :en-GB "Cancel" :es "Cancelar" :fr-CH "Annuler"}
                                  :submit {:de-CH "Hinzufügen" :en-GB "Add" :es "Agregar" :fr-CH "Ajouter"}}
-                        :success-notification {:title {:de-CH "Gegenstände hinzugefügt" :en-GB "Items added" :es "Objetos agregados" :fr-CH "Éléments ajoutés"}
+                        :success-notification {:title {:de-CH "Gegenstände hinzugefügt" :en-GB "Items added" :es "Artículos agregados" :fr-CH "Éléments ajoutés"}
                                                :message {:de-CH "{count, plural,
                                                                           =1 {Ein Gegenstand wurde zum Warenkorb hinzugefügt und kann nun dort überprüft werden.}
                                                                           other {# Gegenstände wurden zum Warenkorb hinzugefügt und können nun dort überprüft werden.}}"
                                                          :en-GB "{count, plural,
                                                                           =1 {One item was added to the cart and can be reviewed/edited there.}
                                                                           other {# items were added to the cart and can be reviewed/edited there.}}"
-                                                         :es "{count, plural, =1 {Se agregó un objeto al carrito, donde puede revisarlo o modificarlo.} other {Se agregaron # objetos al carrito, donde puede revisarlos o modificarlos.}}"
+                                                         :es "{count, plural, =1 {Se agregó un artículo al carrito, donde puede revisarlo o modificarlo.} other {Se agregaron # artículos al carrito, donde puede revisarlos o modificarlos.}}"
                                                          :fr-CH "{count, plural,
                                                                           =1 {Un élément a été ajouté au panier et peut y être révisé/modifié.}
                                                                           other {# éléments ont été ajoutés au panier et peuvent y être révisés/modifiés.}}"}
