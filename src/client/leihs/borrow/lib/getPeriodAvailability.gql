@@ -1,0 +1,21 @@
+query getPeriodAvailability(
+  $modelId: UUID!
+  $userId: UUID
+  $poolIds: [UUID!]
+  $startDate: Date!
+  $endDate: Date!
+  $startTime: Time
+  $endTime: Time
+  $excludeReservationIds: [UUID!]
+) {
+  model(userId: $userId, id: $modelId) {
+    availableQuantityInDateRange(
+      inventoryPoolIds: $poolIds
+      startDate: $startDate
+      endDate: $endDate
+      startTime: $startTime
+      endTime: $endTime
+      excludeReservationIds: $excludeReservationIds
+    )
+  }
+}

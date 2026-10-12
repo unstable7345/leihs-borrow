@@ -60,9 +60,9 @@
       [:> UI/Components.Design.ListCard.Body
        [:div pool-name]
        [:div
-        (h/format-date-range start-date actual-end-date date-locale)
         (if (:start-time reservation)
-          (str ", " (h/format-time-range (:start-time reservation) (:end-time reservation)))
-          (str " (" (t :reservation-line.duration-days {:totalDays total-days}) ")"))]]
+          (h/format-period start-date actual-end-date (:start-time reservation) (:end-time reservation) date-locale)
+          (str (h/format-date-range start-date actual-end-date date-locale)
+               " (" (t :reservation-line.duration-days {:totalDays total-days}) ")"))]]
       [:> UI/Components.Design.ListCard.Foot {:class "fw-bold d-md-none"}
        [status-info status start-date actual-end-date now]]]]))

@@ -103,14 +103,17 @@ export const orderPanel = () => {
 
 orderPanel.storyName = 'OrderPanel'
 
-export const withTimeSlots = () => {
+export const byTheHour = () => {
   const now = new Date(FAKE_STYLEGUIDE_TIME)
   const { modelData, inventoryPools, initialInventoryPoolId, maxDateLoaded } = getOrderPanelMockData()
-  const timeSlots = [
-    { id: 'slot-morning', name: 'Vormittag', startTime: '08:00', endTime: '13:00' },
-    { id: 'slot-afternoon', name: 'Nachmittag', startTime: '13:00', endTime: '18:00' }
-  ]
-  const poolsWithTimeSlots = inventoryPools.map(pool => ({ ...pool, timeSlots }))
+  const hourlyPools = inventoryPools.map(pool => ({
+    ...pool,
+    hourlyReservations: true,
+    hourlyReservationsStartTime: '08:00',
+    hourlyReservationsEndTime: '20:00',
+    maxReservationHours: 12,
+    isMemberOfAGroup: true
+  }))
   const [isValid, setIsValid] = useState()
 
   return (
@@ -124,9 +127,10 @@ export const withTimeSlots = () => {
           initialStartDate={now}
           initialEndDate={now}
           initialQuantity={1}
-          inventoryPools={poolsWithTimeSlots}
+          inventoryPools={hourlyPools}
           initialInventoryPoolId={initialInventoryPoolId}
           onTimeSlotChange={action('time-slot-change')}
+          onPeriodChange={action('period-change')}
           onSubmit={action('submit')}
           onValidate={setIsValid}
           locale={fakeLocale}
@@ -143,4 +147,4 @@ export const withTimeSlots = () => {
   )
 }
 
-withTimeSlots.storyName = 'OrderPanel with time slots'
+byTheHour.storyName = 'OrderPanel by the hour'

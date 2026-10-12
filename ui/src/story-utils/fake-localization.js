@@ -13,11 +13,15 @@ export const orderPanelTexts = {
     until: { 'de-CH': 'Bis' },
     undefined: { 'de-CH': 'Unbestimmt' },
     'show-day-quants': { 'de-CH': 'Verfügbarkeit im Kalender anzeigen' },
-    'time-slot': { 'de-CH': 'Zeitfenster' },
+    'reservation-type': { 'de-CH': 'Art der Reservation' },
+    'by-hours': { 'de-CH': 'Stundenweise' },
     'whole-day': { 'de-CH': 'Ganzer Tag' },
-    'time-slot-option': { 'de-CH': '{name} ({startTime}–{endTime})' },
-    'time-slot-info': { 'de-CH': 'Der Gegenstand wird für dieses Zeitfenster eines einzelnen Tages reserviert.' },
-    'whole-day-info': { 'de-CH': 'Der Gegenstand wird für ganze Tage reserviert.' }
+    'pickup-time': { 'de-CH': 'Abholung um' },
+    'return-time': { 'de-CH': 'Rückgabe um' },
+    'by-hours-info': { 'de-CH': 'Abholung am ersten Tag, Rückgabe am letzten Tag zur gewählten Zeit.' },
+    'whole-day-hours-info': { 'de-CH': 'Ganze Tage, von {startTime} bis {endTime}.' },
+    'max-hours-info': { 'de-CH': 'Höchstens {hours} Stunden.' },
+    'no-max-hours-info': { 'de-CH': 'Ohne Stundenbegrenzung.' }
   },
   validate: {
     'missing-quantity': { 'de-CH': 'Verfügbarkeit kann nicht geprüft werden, da die Anzahl fehlt' },
@@ -25,8 +29,11 @@ export const orderPanelTexts = {
     'invalid-start-date': { 'de-CH': 'Ungültiges Beginndatum' },
     'invalid-end-date': { 'de-CH': 'Ungültiges Enddatum' },
     'start-after-end': { 'de-CH': 'Enddatum muss nach Beginndatum sein' },
-    'time-slot-single-day': { 'de-CH': 'Ein Zeitfenster kann nur für einen einzelnen Tag reserviert werden' },
-    'time-slot-over': { 'de-CH': 'Dieses Zeitfenster ist bereits vorbei' },
+    'return-before-pickup': { 'de-CH': 'Die Rückgabe muss nach der Abholung sein' },
+    'pickup-time-over': { 'de-CH': 'Die Abholzeit ist bereits vorbei' },
+    'max-reservation-hours': { 'de-CH': 'Höchstens {hours} Stunden' },
+    'not-member-of-a-group': { 'de-CH': 'Nur Mitglieder einer Gruppe dieses Inventarparks können reservieren' },
+    'quantity-not-available-in-period': { 'de-CH': 'Im gewählten Zeitraum nicht genügend verfügbar' },
     'pickup-day-over': { 'de-CH': 'Abholung an diesem Tag nicht mehr möglich' },
     'end-date-too-late': { 'de-CH': 'Datum darf nicht nach {maxDate, date, small} sein' },
 

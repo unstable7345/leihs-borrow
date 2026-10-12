@@ -29,6 +29,7 @@
    [leihs.borrow.features.model-show.availability :as availability]
    [leihs.core.core :refer [dissoc-in flip]]
    [leihs.borrow.lib.prefs :as prefs]
+   [leihs.borrow.lib.period-availability :as period]
    ["autolinker" :as autolinker]))
 
 ; TODO: 
@@ -169,7 +170,7 @@
 (reg-event-fx
  ::change-time-slot
  (fn-traced [{:keys [db]} [_ user-id time-slot]]
-   (let [window (when time-slot
+   (let [window (when (period/calendar-window? time-slot)
                   {:start-time (:startTime time-slot)
                    :end-time (:endTime time-slot)})
          model (get-in db [:ls ::data @model-id])]
@@ -208,8 +209,10 @@
  ::open-order-panel
  (fn-traced [{:keys [db]} [_ user-id]]
    {:db (assoc-in db [::data :order-panel] {:is-open? true})
-    ; the order panel always starts with "whole day"
-    :dispatch [::change-time-slot user-id nil]}))
+    ; the order panel always starts with "whole day" (by the hour follows
+    ; from the panel in pools offering it)
+    :dispatch-n (list [::period/clear]
+                      [::change-time-slot user-id nil])}))
 
 (reg-event-db
  ::close-order-panel
@@ -378,6 +381,8 @@
                                   (dispatch [::change-time-slot
                                              user-id
                                              (-> jsargs (js->clj :keywordize-keys true) :timeSlot)]))
+              :periodAvailability (clj->js @(subscribe [::period/result]))
+              :onPeriodChange #(dispatch [::period/fetch {:model-id (:id model) :user-id user-id} %])
               :onSubmit on-submit
               :onValidate on-validate
               :modelData (h/camel-case-keys model)

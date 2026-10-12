@@ -58,14 +58,14 @@ const OrderPanelPropTypes = {
       totalReservableQuantity: PropTypes.number,
       userHasNoAccess: PropTypes.bool,
       userIsSuspended: PropTypes.bool,
-      timeSlots: PropTypes.arrayOf(
-        PropTypes.shape({
-          id: PropTypes.string.isRequired,
-          name: PropTypes.string.isRequired,
-          startTime: PropTypes.string.isRequired,
-          endTime: PropTypes.string.isRequired
-        })
-      )
+      /** whether the pool offers reservations by the hour, within its start and end time ("HH:mm") */
+      hourlyReservations: PropTypes.bool,
+      hourlyReservationsStartTime: PropTypes.string,
+      hourlyReservationsEndTime: PropTypes.string,
+      /** longest reservation the user may make (by the hour), empty for no limit */
+      maxReservationHours: PropTypes.number,
+      /** whether the user is a member of a group of the pool (only members may reserve by the hour) */
+      isMemberOfAGroup: PropTypes.bool
     }).isRequired
   ).isRequired,
   /** initially selected pool */
@@ -73,10 +73,23 @@ const OrderPanelPropTypes = {
   /** callback, when selected pool changes */
   onInventoryPoolChange: PropTypes.func,
 
-  /** time slot (`{startTime, endTime}`, "HH:mm") that is initially selected. Empty means whole day */
+  /** times (`{startTime, endTime}`, "HH:mm") initially selected in a pool by the hour: pick up on the start date, return on the end date. Empty means whole days */
   initialTimeSlot: PropTypes.shape({ startTime: PropTypes.string, endTime: PropTypes.string }),
-  /** callback, when selected time slot changes (argument: state incl. `timeSlot`, which is null for whole day) */
+  /** without `initialTimeSlot`: whether to start by the hour (default) or with whole days */
+  initialHourly: PropTypes.bool,
+  /** callback, when the selected times change (argument: state incl. `timeSlot`, which is null for whole days) */
   onTimeSlotChange: PropTypes.func,
+  /** available quantity for exactly the period of the state given to `onPeriodChange` (`{poolId, startDate, endDate, startTime, endTime, quantity}`) */
+  periodAvailability: PropTypes.shape({
+    poolId: PropTypes.string,
+    startDate: PropTypes.instanceOf(Date),
+    endDate: PropTypes.instanceOf(Date),
+    startTime: PropTypes.string,
+    endTime: PropTypes.string,
+    quantity: PropTypes.number
+  }),
+  /** callback, when the period by the hour changes (argument: state incl. `timeSlot`) */
+  onPeriodChange: PropTypes.func,
 
   /** callback, submits user selection. arguments: `{startDate, endDate, quantity, poolId, timeSlot}` */
   onSubmit: PropTypes.func.isRequired,

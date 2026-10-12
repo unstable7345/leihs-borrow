@@ -38,9 +38,22 @@
           :else (str d1-formatted " – " d2-formatted))))
 
 (defn format-time-range
-  "Time window of a time slot reservation, e.g. \"08:00–13:00\"."
+  "Times of a reservation by the hour on a single day, e.g. \"08:00–13:00\"."
   [start-time end-time]
   (str start-time "–" end-time))
+
+(defn- hhmm [time] (subs (str time) 0 5))
+
+(defn format-period
+  "Dates and times of a reservation by the hour, e.g. \"13/10/2026, 08:00–13:00\"
+  or over several days \"13/10/2026 16:00 – 14/10/2026 10:00\"."
+  [d1 d2 start-time end-time date-locale]
+  (let [locale #js {:locale date-locale}]
+    (if (datefn/isSameDay d1 d2)
+      (str (datefn/format d1 "P" locale) ", " (format-time-range (hhmm start-time) (hhmm end-time)))
+      (str (datefn/format d1 "P" locale) " " (hhmm start-time)
+           " – "
+           (datefn/format d2 "P" locale) " " (hhmm end-time)))))
 
 (def log js/console.log)
 

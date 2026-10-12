@@ -9,7 +9,9 @@ import {
   addDays,
   isSameDay,
   format,
-  formatISO
+  formatISO,
+  addMinutes,
+  differenceInMinutes
 } from 'date-fns'
 import { enGB as defaultDateLocale } from 'date-fns/locale'
 import { translate as t } from '../lib/translate'
@@ -48,7 +50,11 @@ const OrderPanel = ({
   onShowDayQuantsChange = noop,
   //
   initialTimeSlot,
+  initialHourly = true,
   onTimeSlotChange = noop,
+  //
+  periodAvailability,
+  onPeriodChange = noop,
   //
   onValidate = noop,
   onSubmit = noop,
@@ -64,14 +70,40 @@ const OrderPanel = ({
 
   const [quantity, setQuantity] = useState(initialQuantity)
   const [selectedPoolId, setSelectedPoolId] = useState(initialInventoryPoolId || inventoryPools?.[0]?.id || 'NO_POOLS')
-  // Time slots are identified by their time window (stable across the pools' data reloads)
-  const [selectedTimeSlotKey, setSelectedTimeSlotKey] = useState(timeSlotKey(initialTimeSlot))
+  // In a pool with reservations by the hour: 'hours' or 'day' (whole days)
+  const [hourlyMode, setHourlyMode] = useState(initialTimeSlot || initialHourly ? 'hours' : 'day')
+  // Time of pick up (on the start date) and of return (on the end date), "HH:mm"
+  const [times, setTimes] = useState(
+    initialTimeSlot ? { startTime: hhmm(initialTimeSlot.startTime), endTime: hhmm(initialTimeSlot.endTime) } : null
+  )
   const [selectedRange, setSelectedRange] = useState(() => {
     const startDate = initialStartDate ? startOfDay(initialStartDate) : today
     const endDate = initialEndDate ? startOfDay(initialEndDate) : addDays(today, 1)
-    // A time slot is always booked for a single day
-    return initialTimeSlot ? { startDate, endDate: startDate } : { startDate, endDate }
+    return { startDate, endDate }
   })
+
+  const findPool = id => inventoryPools.find(x => x.id === id)
+  // The times of a reservation by the hour, null for whole days
+  const activeTimes = (poolId = selectedPoolId, mode = hourlyMode, t = times) =>
+    findPool(poolId)?.hourlyReservations && mode === 'hours' ? t : null
+
+  // Default times when changing to a pool by the hour
+  useEffect(() => {
+    const pool = findPool(selectedPoolId)
+    if (pool?.hourlyReservations && hourlyMode === 'hours' && !times) {
+      const defaults = defaultTimes(pool, selectedRange.startDate, currentTime)
+      setTimes(defaults)
+      onTimeSlotChange({ ...stateForCallbacks(), timeSlot: defaults })
+    }
+  }, [selectedPoolId, hourlyMode, times, inventoryPools])
+
+  // The availability for exactly the chosen period is asked for separately
+  useEffect(() => {
+    const t = activeTimes()
+    if (t) {
+      onPeriodChange(stateForCallbacks())
+    }
+  }, [selectedPoolId, hourlyMode, times, selectedRange])
 
   // State depending on the input states (e.g. validation result)
   const [dependentState, setDependentState] = useState()
@@ -101,26 +133,28 @@ const OrderPanel = ({
       }
     })()
 
+    // Times by the hour (null for whole days). The availability by day is
+    // asked for the times on each day, which tells nothing about a period
+    // over night (e.g. 16:00 to 10:00 the next day).
+    const selectedTimes = activeTimes(selectedPool.id)
+    const overNight = !!selectedTimes && selectedTimes.startTime >= selectedTimes.endTime
+
     // Extract data for DateRangePicker
     const { disabledDates, disabledStartDates, disabledEndDates } = getDateRangePickerConstraints(
       poolAvailability,
       today,
-      quantity
+      quantity,
+      overNight
     )
     const maxQuantityByDay = getMaxQuantityByDay(poolAvailability)
 
-    // Time slots of the selected pool (empty when it only offers whole days)
-    const timeSlots = selectedPool.timeSlots || []
-    const selectedTimeSlot = timeSlots.find(x => timeSlotKey(x) === selectedTimeSlotKey)
-
     // Validation
-    const validationResult = validate(selectedPool, poolAvailability, selectedTimeSlot)
+    const validationResult = validate(selectedPool, poolAvailability, selectedTimes)
 
     setDependentState({
       selectablePools,
       selectedPool,
-      timeSlots,
-      selectedTimeSlot,
+      selectedTimes,
       poolAvailability,
       disabledDates,
       disabledStartDates,
@@ -133,7 +167,9 @@ const OrderPanel = ({
   }, [
     quantity,
     selectedPoolId,
-    selectedTimeSlotKey,
+    hourlyMode,
+    times,
+    periodAvailability,
     selectedRange,
     modelData,
     maxDateTotal,
@@ -143,26 +179,18 @@ const OrderPanel = ({
   ])
 
   // Validation
-  function validate(selectedPool, poolAvailability, selectedTimeSlot) {
+  function validate(selectedPool, poolAvailability, selectedTimes) {
     const poolError = validatePool(selectedPool, locale, txt.validate)
     if (poolError) {
       return { poolError }
     }
-    if (selectedTimeSlot && !isSameDay(selectedRange.startDate, selectedRange.endDate)) {
-      return { dateRangeErrors: [t(txt.validate, 'time-slot-single-day', locale)] }
+    if (selectedPool.hourlyReservations) {
+      const hoursError = validateHours(selectedPool, selectedRange, selectedTimes, currentTime, locale, txt.validate)
+      if (hoursError) {
+        return { dateRangeErrors: [hoursError] }
+      }
     }
-    if (selectedTimeSlot && isTimeSlotOver(selectedRange.startDate, selectedTimeSlot, currentTime)) {
-      return { dateRangeErrors: [t(txt.validate, 'time-slot-over', locale)] }
-    }
-    // The last time slot of a day is its time of closing
-    const poolTimeSlots = selectedPool.timeSlots || []
-    if (
-      !selectedTimeSlot &&
-      poolTimeSlots.length > 0 &&
-      poolTimeSlots.every(x => isTimeSlotOver(selectedRange.startDate, x, currentTime))
-    ) {
-      return { dateRangeErrors: [t(txt.validate, 'pickup-day-over', locale)] }
-    }
+    const overNight = !!selectedTimes && selectedTimes.startTime >= selectedTimes.endTime
     const dateRangeErrors = validateDateRange(
       selectedRange,
       today,
@@ -171,10 +199,17 @@ const OrderPanel = ({
       quantity,
       locale,
       dateLocale,
-      txt.validate
+      txt.validate,
+      overNight
     )
     if (dateRangeErrors && dateRangeErrors.length > 0) {
       return { dateRangeErrors: [...dateRangeErrors] }
+    }
+    // The availability for exactly the chosen period (when known)
+    if (selectedTimes && periodAvailability && isSamePeriod(periodAvailability, stateForCallbacks())) {
+      if (periodAvailability.quantity < quantity) {
+        return { dateRangeErrors: [t(txt.validate, 'quantity-not-available-in-period', locale)] }
+      }
     }
     return { isValid: true }
   }
@@ -188,7 +223,7 @@ const OrderPanel = ({
     const validationResult = validate(
       dependentState.selectedPool,
       dependentState.poolAvailability,
-      dependentState.selectedTimeSlot
+      dependentState.selectedTimes
     )
     if (validationResult.isValid) {
       onSubmit(stateForCallbacks())
@@ -203,30 +238,31 @@ const OrderPanel = ({
   function changeInventoryPool(e) {
     const id = e.target.value
     setSelectedPoolId(id)
-    // The time slots are specific to the pool
-    setSelectedTimeSlotKey('')
+    // The hours are specific to the pool (the defaults follow, see above)
+    setHourlyMode('hours')
+    setTimes(null)
     onInventoryPoolChange({ ...stateForCallbacks(), poolId: id, timeSlot: null })
-    if (selectedTimeSlotKey) {
+    if (activeTimes()) {
       onTimeSlotChange({ ...stateForCallbacks(), poolId: id, timeSlot: null })
     }
   }
 
-  function changeTimeSlot(e) {
-    const key = e.target.value
-    const timeSlot = dependentState.timeSlots.find(x => timeSlotKey(x) === key) || null
-    setSelectedTimeSlotKey(key)
-    // A time slot is always booked for a single day
-    const range = timeSlot ? { startDate: selectedRange.startDate, endDate: selectedRange.startDate } : selectedRange
-    setSelectedRange(range)
-    onTimeSlotChange({ ...stateForCallbacks(), ...range, timeSlot })
+  function changeHourlyMode(e) {
+    const mode = e.target.value
+    const newTimes =
+      mode === 'hours' ? times || defaultTimes(findPool(selectedPoolId), selectedRange.startDate, currentTime) : times
+    setHourlyMode(mode)
+    setTimes(newTimes)
+    onTimeSlotChange({ ...stateForCallbacks(), timeSlot: activeTimes(selectedPoolId, mode, newTimes) })
+  }
+
+  function changeTime(key, value) {
+    const newTimes = { ...times, [key]: value }
+    setTimes(newTimes)
+    onTimeSlotChange({ ...stateForCallbacks(), timeSlot: newTimes })
   }
 
   function changeDateRange(range) {
-    if (selectedTimeSlotKey && !isSameDay(range.startDate, range.endDate)) {
-      // Collapse to the newly picked day
-      const day = isSameDay(range.startDate, selectedRange.startDate) ? range.endDate : range.startDate
-      range = { startDate: day, endDate: day }
-    }
     setSelectedRange(range)
     onDatesChange({ ...stateForCallbacks(), ...range })
   }
@@ -236,7 +272,7 @@ const OrderPanel = ({
     endDate: selectedRange.endDate,
     quantity,
     poolId: selectedPoolId,
-    timeSlot: dependentState?.selectedTimeSlot || null
+    timeSlot: activeTimes()
   })
 
   function handleCalendarNavigate(newDate) {
@@ -254,7 +290,6 @@ const OrderPanel = ({
   const {
     selectablePools,
     selectedPool,
-    timeSlots,
     disabledDates,
     disabledStartDates,
     disabledEndDates,
@@ -333,31 +368,73 @@ const OrderPanel = ({
                     plusLabel={`${t(label, 'plus', locale)} 1`}
                   />
                 </Section>
-                {timeSlots.length > 0 && (
-                  <Section title={t(label, 'time-slot', locale)}>
-                    <label htmlFor="time-slot-id" className="visually-hidden">
-                      {t(label, 'time-slot', locale)}
+                {selectedPool.hourlyReservations && (
+                  <Section title={t(label, 'reservation-type', locale)}>
+                    <label htmlFor="reservation-type" className="visually-hidden">
+                      {t(label, 'reservation-type', locale)}
                     </label>
                     <select
-                      name="time-slot-id"
-                      id="time-slot-id"
-                      value={selectedTimeSlotKey}
-                      onChange={changeTimeSlot}
+                      name="reservation-type"
+                      id="reservation-type"
+                      value={hourlyMode}
+                      onChange={changeHourlyMode}
                       className="form-select"
                     >
-                      <option value="">{t(label, 'whole-day', locale)}</option>
-                      {timeSlots.map(({ id, name, startTime, endTime }) => (
-                        <option
-                          key={id}
-                          value={timeSlotKey({ startTime, endTime })}
-                          disabled={isTimeSlotOver(selectedRange.startDate, { endTime }, currentTime)}
-                        >
-                          {t(label, 'time-slot-option', locale, { name, startTime, endTime })}
-                        </option>
-                      ))}
+                      <option value="hours">{t(label, 'by-hours', locale)}</option>
+                      <option value="day">{t(label, 'whole-day', locale)}</option>
                     </select>
+                    {hourlyMode === 'hours' && times && (
+                      <div className="row g-3 mt-0">
+                        <div className="col-6">
+                          <label htmlFor="pickup-time" className="form-label">
+                            {t(label, 'pickup-time', locale)}
+                          </label>
+                          <select
+                            name="pickup-time"
+                            id="pickup-time"
+                            value={times.startTime}
+                            onChange={e => changeTime('startTime', e.target.value)}
+                            className="form-select"
+                          >
+                            {poolSteps(selectedPool)
+                              .slice(0, -1)
+                              .map(x => (
+                                <option key={x} value={x}>
+                                  {x}
+                                </option>
+                              ))}
+                          </select>
+                        </div>
+                        <div className="col-6">
+                          <label htmlFor="return-time" className="form-label">
+                            {t(label, 'return-time', locale)}
+                          </label>
+                          <select
+                            name="return-time"
+                            id="return-time"
+                            value={times.endTime}
+                            onChange={e => changeTime('endTime', e.target.value)}
+                            className="form-select"
+                          >
+                            {poolSteps(selectedPool).map(x => (
+                              <option key={x} value={x}>
+                                {x}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    )}
                     <InfoMessage className="mt-2">
-                      {selectedTimeSlotKey ? t(label, 'time-slot-info', locale) : t(label, 'whole-day-info', locale)}
+                      {hourlyMode === 'hours'
+                        ? t(label, 'by-hours-info', locale)
+                        : t(label, 'whole-day-hours-info', locale, {
+                            startTime: hhmm(selectedPool.hourlyReservationsStartTime),
+                            endTime: hhmm(selectedPool.hourlyReservationsEndTime)
+                          })}{' '}
+                      {selectedPool.maxReservationHours
+                        ? t(label, 'max-hours-info', locale, { hours: selectedPool.maxReservationHours })
+                        : t(label, 'no-max-hours-info', locale)}
                     </InfoMessage>
                   </Section>
                 )}
@@ -421,22 +498,85 @@ OrderPanel.displayName = 'OrderPanel'
 OrderPanel.propTypes = orderPanelPropTypes
 export default OrderPanel
 
-function timeSlotKey(timeSlot) {
-  return timeSlot && timeSlot.startTime ? `${timeSlot.startTime}-${timeSlot.endTime}` : ''
+const STEP_MINUTES = 30
+
+// "HH:mm" of a time ("HH:mm" or "HH:mm:ss")
+function hhmm(time) {
+  return time ? time.slice(0, 5) : time
 }
 
-// Whether the time slot of the given day has already ended
-function isTimeSlotOver(day, { endTime }, currentTime) {
-  const [hours, minutes] = endTime.split(':').map(Number)
-  const end = new Date(day.getFullYear(), day.getMonth(), day.getDate(), hours, minutes)
-  return !isBefore(currentTime, end)
+function toMinutes(time) {
+  const [hours, minutes] = time.split(':').map(Number)
+  return hours * 60 + minutes
 }
 
-function getDateRangePickerConstraints(poolAvailability, today, wantedQuantity) {
+function fromMinutes(minutes) {
+  return `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`
+}
+
+function atTime(day, time) {
+  const [hours, minutes] = time.split(':').map(Number)
+  return new Date(day.getFullYear(), day.getMonth(), day.getDate(), hours, minutes)
+}
+
+// The times of a pool by the hour, from its opening to its closing in steps of 30 minutes
+function poolSteps(pool) {
+  const from = Math.ceil(toMinutes(hhmm(pool.hourlyReservationsStartTime)) / STEP_MINUTES) * STEP_MINUTES
+  const to = toMinutes(hhmm(pool.hourlyReservationsEndTime))
+  const steps = []
+  for (let minutes = from; minutes <= to; minutes += STEP_MINUTES) {
+    steps.push(fromMinutes(minutes))
+  }
+  return steps
+}
+
+// The first time of pick up still possible on the day, and one hour later
+function defaultTimes(pool, day, currentTime) {
+  const steps = poolSteps(pool)
+  const pickups = steps.slice(0, -1)
+  const startTime = pickups.find(x => addMinutes(atTime(day, x), STEP_MINUTES) > currentTime) || pickups[0]
+  const endTime = fromMinutes(Math.min(toMinutes(startTime) + 60, toMinutes(steps[steps.length - 1])))
+  return { startTime, endTime }
+}
+
+function isSamePeriod(a, b) {
+  return (
+    a.poolId === b.poolId &&
+    isSameDay(a.startDate, b.startDate) &&
+    isSameDay(a.endDate, b.endDate) &&
+    hhmm(a.startTime) === b.timeSlot?.startTime &&
+    hhmm(a.endTime) === b.timeSlot?.endTime
+  )
+}
+
+// Rules of a pool by the hour (times null for whole days, from opening to closing)
+function validateHours(pool, { startDate, endDate }, times, currentTime, locale, txt) {
+  if (!isValid(startDate) || !isValid(endDate)) {
+    return
+  }
+  const opening = hhmm(pool.hourlyReservationsStartTime)
+  const closing = hhmm(pool.hourlyReservationsEndTime)
+  const start = atTime(startDate, times ? times.startTime : opening)
+  const end = atTime(endDate, times ? times.endTime : closing)
+  if (times && !isBefore(start, end)) {
+    return t(txt, 'return-before-pickup', locale)
+  }
+  if (
+    times ? !isBefore(currentTime, addMinutes(start, STEP_MINUTES)) : !isBefore(currentTime, atTime(startDate, closing))
+  ) {
+    return t(txt, times ? 'pickup-time-over' : 'pickup-day-over', locale)
+  }
+  const maxHours = pool.maxReservationHours
+  if (maxHours && differenceInMinutes(end, start) > maxHours * 60) {
+    return t(txt, 'max-reservation-hours', locale, { hours: maxHours })
+  }
+}
+
+function getDateRangePickerConstraints(poolAvailability, today, wantedQuantity, ignoreQuantity = false) {
   const { dates } = poolAvailability
   const getDates = filter => [...dates.filter(filter).map(x => x.parsedDate)]
   return {
-    disabledDates: getDates(x => x.quantity < wantedQuantity && x.parsedDate >= today),
+    disabledDates: ignoreQuantity ? [] : getDates(x => x.quantity < wantedQuantity && x.parsedDate >= today),
     disabledStartDates: getDates(x => x.startDateRestrictions && x.startDateRestrictions.length > 0),
     disabledEndDates: getDates(x => x.endDateRestrictions && x.startDateRestrictions.length > 0)
   }
@@ -465,6 +605,9 @@ function validatePool(inventoryPool, locale, txt) {
   if (inventoryPool.isSurrogate) {
     return t(txt, 'unknown-pool', locale)
   }
+  if (inventoryPool.hourlyReservations && inventoryPool.isMemberOfAGroup === false) {
+    return t(txt, 'not-member-of-a-group', locale)
+  }
 }
 
 export const validateDateRange = (
@@ -475,7 +618,9 @@ export const validateDateRange = (
   wantedQuantity,
   locale,
   dateLocale,
-  txt
+  txt,
+  // e.g. for a period by the hour over night, whose availability is not known by day
+  ignoreQuantity = false
 ) => {
   const { startDate, endDate } = selectedRange
   const { dates, inventoryPool } = poolAvailability
@@ -576,6 +721,9 @@ export const validateDateRange = (
 
   // Available quantity
   const availabilityMessage = (() => {
+    if (ignoreQuantity) {
+      return
+    }
     const noAvailDates = [
       ...eachDayOfInterval({ start: startDate, end: endDate }).filter(d => {
         if (d < today) {

@@ -27,12 +27,11 @@ query getAvailability(
           endDate
           name
         }
-        timeSlots {
-          id
-          name
-          startTime
-          endTime
-        }
+        hourlyReservations
+        hourlyReservationsStartTime
+        hourlyReservationsEndTime
+        maxReservationHours
+        isMemberOfAGroup
       }
       dates {
         date

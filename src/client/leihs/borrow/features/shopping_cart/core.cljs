@@ -13,6 +13,7 @@
    [leihs.borrow.lib.errors :as errors]
    [leihs.borrow.lib.form-helpers :refer [UiTextarea]]
    [leihs.borrow.lib.helpers :as h]
+   [leihs.borrow.lib.period-availability :as period]
    [leihs.borrow.lib.prefs :as prefs]
    [leihs.borrow.lib.re-frame :refer [dispatch reg-event-db reg-event-fx
                                       reg-sub subscribe]]
@@ -90,7 +91,7 @@
 (reg-event-fx
  ::change-time-slot
  (fn-traced [{:keys [db]} [_ time-slot]]
-   (let [window (when time-slot
+   (let [window (when (period/calendar-window? time-slot)
                   {:start-time (:startTime time-slot)
                    :end-time (:endTime time-slot)})
          edit-mode (::edit-mode db)]
@@ -239,14 +240,23 @@
                        :inventory-pool inventory-pool
                        :start-date start-date
                        :end-date end-date
-                       :time-window (when (:start-time res-line)
+                       ;; times of a reservation by the hour (pick up on the
+                       ;; start date, return on the end date)
+                       :times (when (:start-time res-line)
+                                {:startTime (:start-time res-line)
+                                 :endTime (:end-time res-line)})
+                       ;; asked for on each day of the calendar
+                       :time-window (when (period/calendar-window?
+                                           {:startTime (:start-time res-line)
+                                            :endTime (:end-time res-line)})
                                       {:start-time (:start-time res-line)
                                        :end-time (:end-time res-line)})
                        :quantity quantity
                        :user-id user-id})
-        :dispatch [::fetch-total-reservable-quantities
-                   (h/date-format-day start-of-current-month)
-                   (h/date-format-day fetch-until-date)]}))))
+        :dispatch-n (list [::period/clear]
+                          [::fetch-total-reservable-quantities
+                           (h/date-format-day start-of-current-month)
+                           (h/date-format-day fetch-until-date)])}))))
 
 (reg-event-db
  ::open-order-dialog
@@ -443,17 +453,21 @@
                                              (and selected-pool (not-any? #(= (:id %) (:id selected-pool)) pools))
                                               [(merge selected-pool {:user-has-no-access true})])))
 
-            assoc-time-slots (fn [pool]
-                               (assoc pool :time-slots (->> availability
-                                                            (filter #(= (-> % :inventory-pool :id) (:id pool)))
-                                                            first
-                                                            :inventory-pool
-                                                            :time-slots)))
-            time-window (:time-window edit-mode-data)
+            assoc-hours (fn [pool]
+                          (merge pool (-> (->> availability
+                                               (filter #(= (-> % :inventory-pool :id) (:id pool)))
+                                               first
+                                               :inventory-pool)
+                                          (select-keys [:hourly-reservations
+                                                        :hourly-reservations-start-time
+                                                        :hourly-reservations-end-time
+                                                        :max-reservation-hours
+                                                        :is-member-of-a-group]))))
+            times (:times edit-mode-data)
             pool-id-and-name (:inventory-pool edit-mode-data)
             pools (->> model :total-reservable-quantities
                        (map flatten-pool)
-                       (map assoc-time-slots)
+                       (map assoc-hours)
                        (filter #(has-items-or-is-selected (:id pool-id-and-name) %))
                        (map #(-> % (assoc-suspension suspensions)))
                        (add-inaccessible-pool pool-id-and-name))
@@ -478,9 +492,14 @@
              :initialStartDate start-date
              :initialEndDate end-date
              :initialInventoryPoolId (:id pool-id-and-name)
-             :initialTimeSlot (when time-window
-                                {:startTime (:start-time time-window)
-                                 :endTime (:end-time time-window)})
+             :initialTimeSlot times
+             :initialHourly false
+             :periodAvailability (clj->js @(subscribe [::period/result]))
+             :onPeriodChange #(dispatch [::period/fetch
+                                         {:model-id (:id model)
+                                          :user-id user-id
+                                          :exclude-reservation-ids (map :id res-lines)}
+                                         %])
              :onTimeSlotChange (fn [jsargs]
                                  (dispatch [::change-time-slot
                                             (-> jsargs (js->clj :keywordize-keys true) :timeSlot)]))
@@ -550,10 +569,10 @@
       [:> UI/Components.Design.ListCard.Body
        [:div pool-names]
        [:div {:class (when invalid? "text-danger")}
-        (h/format-date-range start-date end-date date-locale)
         (if (:start-time exemplar)
-          (str ", " (h/format-time-range (:start-time exemplar) (:end-time exemplar)))
-          (str " (" (t :line.duration-days {:totalDays total-days}) ")"))]]]]))
+          (h/format-period start-date end-date (:start-time exemplar) (:end-time exemplar) date-locale)
+          (str (h/format-date-range start-date end-date date-locale)
+               " (" (t :line.duration-days {:totalDays total-days}) ")"))]]]]))
 
 (defn delegation-section []
   (let [user-data @(subscribe [::current-user/user-data])

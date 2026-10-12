@@ -73,11 +73,15 @@
              :until {:en-GB "Until" :es "Hasta" :de-CH "Bis" :fr-CH "À"}
              :undefined {:en-GB "Not set" :es "Sin definir" :de-CH "Unbestimmt" :fr-CH "Indéfini"}
              :show-day-quants {:en-GB "Show availability in calendar" :es "Mostrar disponibilidad en el calendario" :de-CH "Verfügbarkeit im Kalender anzeigen" :fr-CH "Afficher la disponibilité dans le calendrier"}
-             :time-slot {:en-GB "Time slot" :es "Franja horaria" :de-CH "Zeitfenster" :fr-CH "Créneau horaire"}
-             :whole-day {:en-GB "Whole day" :es "Día completo" :de-CH "Ganzer Tag" :fr-CH "Journée entière"}
-             :time-slot-option {:en-GB "{name} ({startTime}–{endTime})" :es "{name} ({startTime}–{endTime})" :de-CH "{name} ({startTime}–{endTime})" :fr-CH "{name} ({startTime}–{endTime})"}
-             :time-slot-info {:en-GB "The item is reserved for this time slot of a single day." :es "El objeto se reserva para esta franja horaria de un único día." :de-CH "Der Gegenstand wird für dieses Zeitfenster eines einzelnen Tages reserviert." :fr-CH "L'article est réservé pour ce créneau horaire d'une seule journée."}
-             :whole-day-info {:en-GB "The item is reserved for whole days." :es "El objeto se reserva por días completos." :de-CH "Der Gegenstand wird für ganze Tage reserviert." :fr-CH "L'article est réservé pour des journées entières."}}
+             :reservation-type {:en-GB "Type of reservation" :es "Tipo de reserva" :de-CH "Art der Reservation" :fr-CH "Type de réservation"}
+             :by-hours {:en-GB "By the hour" :es "Por horas" :de-CH "Stundenweise" :fr-CH "À l'heure"}
+             :whole-day {:en-GB "Whole days" :es "Días completos" :de-CH "Ganze Tage" :fr-CH "Journées entières"}
+             :pickup-time {:en-GB "Pickup at" :es "Hora de retiro" :de-CH "Abholung um" :fr-CH "Retrait à"}
+             :return-time {:en-GB "Return at" :es "Hora de devolución" :de-CH "Rückgabe um" :fr-CH "Retour à"}
+             :by-hours-info {:en-GB "You pick the item up on the first day and return it on the last day at the chosen times." :es "Retiras el objeto el primer día y lo devuelves el último día a las horas elegidas." :de-CH "Du holst den Gegenstand am ersten Tag ab und gibst ihn am letzten Tag zur gewählten Zeit zurück." :fr-CH "Tu retires l'article le premier jour et le retournes le dernier jour aux heures choisies."}
+             :whole-day-hours-info {:en-GB "Whole days, from {startTime} on the first day until {endTime} on the last day." :es "Días completos, desde las {startTime} del primer día hasta las {endTime} del último." :de-CH "Ganze Tage, von {startTime} am ersten Tag bis {endTime} am letzten Tag." :fr-CH "Journées entières, de {startTime} le premier jour jusqu'à {endTime} le dernier jour."}
+             :max-hours-info {:en-GB "{hours, plural, one {You can reserve for at most # hour in a row.} other {You can reserve for at most # hours in a row.}}" :es "{hours, plural, one {Puedes reservar como máximo # hora seguida.} other {Puedes reservar como máximo # horas seguidas.}}" :de-CH "{hours, plural, one {Du kannst höchstens # Stunde am Stück reservieren.} other {Du kannst höchstens # Stunden am Stück reservieren.}}" :fr-CH "{hours, plural, one {Tu peux réserver au maximum # heure d'affilée.} other {Tu peux réserver au maximum # heures d'affilée.}}"}
+             :no-max-hours-info {:en-GB "There is no limit of hours." :es "No hay un límite de horas." :de-CH "Es gibt keine Stundenbegrenzung." :fr-CH "Il n'y a pas de limite d'heures."}}
      :validate {:missing-quantity
                 {:de-CH "Verfügbarkeit kann nicht geprüft werden, da die Anzahl fehlt"
                  :en-GB "Availability can not be checked because the quantity is missing"
@@ -94,16 +98,31 @@
                  :en-GB "Invalid end date"
                  :es "Fecha de fin no válida"
                  :fr-CH "Date de fin invalide"}
-                :time-slot-single-day
-                {:de-CH "Ein Zeitfenster kann nur für einen einzelnen Tag reserviert werden"
-                 :en-GB "A time slot can only be reserved for a single day"
-                 :es "Una franja horaria solo se puede reservar para un único día"
-                 :fr-CH "Un créneau horaire ne peut être réservé que pour une seule journée"}
-                :time-slot-over
-                {:de-CH "Dieses Zeitfenster ist bereits vorbei"
-                 :en-GB "This time slot is already over"
-                 :es "Esta franja horaria ya terminó"
-                 :fr-CH "Ce créneau horaire est déjà passé"}
+                :return-before-pickup
+                {:de-CH "Die Rückgabe muss nach der Abholung sein"
+                 :en-GB "The return has to be after the pickup"
+                 :es "La devolución tiene que ser posterior al retiro"
+                 :fr-CH "Le retour doit être postérieur au retrait"}
+                :pickup-time-over
+                {:de-CH "Die Abholzeit ist bereits vorbei"
+                 :en-GB "The pickup time is already over"
+                 :es "La hora de retiro ya pasó"
+                 :fr-CH "L'heure de retrait est déjà passée"}
+                :max-reservation-hours
+                {:de-CH "{hours, plural, one {Du kannst höchstens # Stunde am Stück reservieren} other {Du kannst höchstens # Stunden am Stück reservieren}}"
+                 :en-GB "{hours, plural, one {You can reserve for at most # hour in a row} other {You can reserve for at most # hours in a row}}"
+                 :es "{hours, plural, one {Puedes reservar como máximo # hora seguida} other {Puedes reservar como máximo # horas seguidas}}"
+                 :fr-CH "{hours, plural, one {Tu peux réserver au maximum # heure d'affilée} other {Tu peux réserver au maximum # heures d'affilée}}"}
+                :not-member-of-a-group
+                {:de-CH "Nur Mitglieder einer Gruppe dieses Inventarparks können hier reservieren. Bitte wende dich an den Inventarpark."
+                 :en-GB "Only members of a group of this inventory pool can reserve here. Please contact the inventory pool."
+                 :es "Para reservar aquí tienes que pertenecer a uno de los grupos de este inventario. Contacta con el almacén."
+                 :fr-CH "Seuls les membres d'un groupe de ce pool d'inventaire peuvent réserver ici. Merci de contacter le pool d'inventaire."}
+                :quantity-not-available-in-period
+                {:de-CH "Im gewählten Zeitraum ist nicht genügend verfügbar"
+                 :en-GB "Not enough items are available in the chosen period"
+                 :es "No hay suficientes unidades disponibles en el horario elegido"
+                 :fr-CH "Pas assez d'articles disponibles pendant la période choisie"}
                 :pickup-day-over
                 {:de-CH "Abholung an diesem Tag nicht mehr möglich"
                  :en-GB "Pickup on this day is no longer possible"
