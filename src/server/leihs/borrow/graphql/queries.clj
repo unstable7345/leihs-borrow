@@ -5,6 +5,7 @@
    [leihs.borrow.resources.contracts :as contracts]
    [leihs.borrow.resources.delegations :as delegations]
    [leihs.borrow.resources.holidays :as holidays]
+   [leihs.borrow.resources.hourly-reservations :as hourly-reservations]
    [leihs.borrow.resources.images :as images]
    [leihs.borrow.resources.inventory-pools :as inventory-pools]
    [leihs.borrow.resources.items :as items]
@@ -42,6 +43,8 @@
    :favorite-models-connection models/get-favorites-connection
    :has-reservable-items inventory-pools/has-reservable-items?
    :holidays holidays/get-multiple
+   :is-member-of-a-group hourly-reservations/is-member-of-a-group?
+   :max-reservation-hours hourly-reservations/max-reservation-hours
    :time-slots time-slots/get-multiple
    :images images/get-multiple
    :inventory-pool inventory-pools/get-one

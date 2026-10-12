@@ -40,8 +40,21 @@ date_range AS (
 SELECT accessible_pools.*
 FROM accessible_pools
 
--- the duration of the reservation is less than or equal to the maximum reservation duration
+-- only members of a group of a pool with reservations by the hour may reserve in it
 WHERE (
+  NOT accessible_pools.hourly_reservations OR
+  EXISTS (
+    SELECT 1
+    FROM entitlement_groups_users
+    INNER JOIN entitlement_groups
+      ON entitlement_groups.id = entitlement_groups_users.entitlement_group_id
+    WHERE entitlement_groups.inventory_pool_id = accessible_pools.id
+      AND entitlement_groups_users.user_id = :user-id
+  )
+)
+
+-- the duration of the reservation is less than or equal to the maximum reservation duration
+AND (
   accessible_pools.borrow_maximum_reservation_duration IS NULL OR
   EXTRACT(DAY FROM age(:end-date::date, :start-date::date)) < accessible_pools.borrow_maximum_reservation_duration
 )

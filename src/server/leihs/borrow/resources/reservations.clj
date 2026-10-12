@@ -11,9 +11,9 @@
             [leihs.borrow.graphql.target-user :as target-user]
             [leihs.borrow.resources.delegations :as delegations]
             [leihs.borrow.resources.helpers :as helpers]
+            [leihs.borrow.resources.hourly-reservations :as hourly]
             [leihs.borrow.resources.inventory-pools :as pools]
             [leihs.borrow.resources.models :as models]
-            [leihs.borrow.resources.time-slots :as time-slots]
             [leihs.borrow.resources.workdays :as workdays]
             [leihs.borrow.time :as time]
             [leihs.core.core :refer [raise presence]]
@@ -124,13 +124,6 @@
       first
       :result))
 
-(defn- pickup-day-over?
-  "Whether the last time slot of the pool on that day is already over. Pools
-  without time slots have no time of closing."
-  [tx pool-id date]
-  (some->> (time-slots/last-end-time tx pool-id)
-           (time/time-slot-ended? tx date)))
-
 (defn broken
   ([tx user-id]
    (broken tx user-id (-> (unsubmitted-sqlmap tx user-id)
@@ -150,14 +143,11 @@
                                          second)]
                        (not (some #{(:inventory_pool_id r)} pool-ids)))
                      (not (complies-with-max-reservation-time? tx r))
-                     (if (:start_time r)
-                       (or (time/time-slot-ended? tx (:start_date r) (:end_time r))
-                           ;; e.g. the time slot was deleted in the meantime
-                           (not (time-slots/offered? tx
-                                                     (:inventory_pool_id r)
-                                                     (str (:start_time r))
-                                                     (str (:end_time r)))))
-                       (pickup-day-over? tx (:inventory_pool_id r) (:start_date r))))
+                     ;; e.g. the time of pick up is over or the limit of the
+                     ;; groups was lowered in the meantime
+                     (hourly/problem tx user-id (:inventory_pool_id r)
+                                     (:start_date r) (:end_date r)
+                                     (:start_time r) (:end_time r)))
                  (conj r)))
              []
              rs))))
@@ -404,20 +394,11 @@
         sql-format
         (query tx))))
 
-(defn- assert-valid-time-slot!
-  [tx pool-id start-date end-date start-time end-time]
-  (if (or start-time end-time)
-    (do
-      (when-not (and start-time end-time)
-        (raise "Both startTime and endTime are required for a time slot."))
-      (when (not= start-date end-date)
-        (raise "A time slot can only be reserved for a single day."))
-      (when-not (time-slots/offered? tx pool-id start-time end-time)
-        (raise "The inventory pool does not offer this time slot."))
-      (when (time/time-slot-ended? tx start-date end-time)
-        (raise "This time slot is already over.")))
-    (when (pickup-day-over? tx pool-id start-date)
-      (raise "Pickup on this day is no longer possible: the last time slot is over."))))
+(defn- assert-valid-hours!
+  [tx user-id pool-id start-date end-date start-time end-time]
+  (when-let [problem (hourly/problem tx user-id pool-id start-date end-date
+                                     start-time end-time)]
+    (raise problem)))
 
 (defn create
   [{{tx :tx {auth-user-id :id} :authenticated-entity} :request
@@ -435,7 +416,7 @@
                  (map :id)
                  (some #{pool-id}))
     (raise "Not allowed to create reservation in this pool."))
-  (assert-valid-time-slot! tx pool-id start-date end-date start-time end-time)
+  (assert-valid-hours! tx user-id pool-id start-date end-date start-time end-time)
   (let [available-quantity (models/available-quantity-in-date-range
                             context
                             {:inventory-pool-ids [pool-id]

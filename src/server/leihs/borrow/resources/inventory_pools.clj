@@ -37,7 +37,10 @@
     :reservation_advance_days]
    :inventory_pools.borrow_maximum_reservation_duration
    [:inventory_pools.borrow_maximum_reservation_duration
-    :maximum_reservation_duration]])
+    :maximum_reservation_duration]
+   :inventory_pools.hourly_reservations
+   :inventory_pools.hourly_reservations_start_time
+   :inventory_pools.hourly_reservations_end_time])
 
 (def base-sqlmap
   (-> (apply sql/select select-fields)

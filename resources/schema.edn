@@ -69,6 +69,16 @@
                                                    :resolve :inventory-pool-has-templates}
                                     :holidays {:type (list :Holiday)
                                                :resolve :holidays}
+                                    :hourlyReservations {:type (non-null Boolean)
+                                                         :description "Whether customers may reserve by the hour, within hourlyReservationsStartTime and hourlyReservationsEndTime, also over several days."}
+                                    :hourlyReservationsStartTime {:type :Time}
+                                    :hourlyReservationsEndTime {:type :Time}
+                                    :maxReservationHours {:type Int
+                                                          :description "The longest reservation the user may make in a pool with reservations by the hour (the highest limit of their groups). Null without a limit."
+                                                          :resolve :max-reservation-hours}
+                                    :isMemberOfAGroup {:type (non-null Boolean)
+                                                       :description "Whether the user is a member of a group of the pool. In a pool with reservations by the hour only members may reserve."
+                                                       :resolve :is-member-of-a-group}
                                     :timeSlots {:type (list (non-null :TimeSlot))
                                                 :description "Time slots for same-day reservations. Empty when the pool only offers whole days."
                                                 :resolve :time-slots}
@@ -499,7 +509,7 @@
  :mutations {:createReservation {:args {:startDate {:type (non-null :Date)}
                                         :endDate {:type (non-null :Date)}
                                         :startTime {:type :Time
-                                                    :description "Together with endTime: reserve only this time slot of the pool. Requires startDate = endDate."}
+                                                    :description "Together with endTime: reserve by the hour, from startTime of startDate to endTime of endDate (pools with hourlyReservations only)."}
                                         :endTime {:type :Time}
                                         :modelId {:type (non-null :UUID)}
                                         :userId {:type :UUID}
