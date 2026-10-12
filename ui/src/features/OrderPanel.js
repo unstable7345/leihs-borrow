@@ -87,13 +87,19 @@ const OrderPanel = ({
   const activeTimes = (poolId = selectedPoolId, mode = hourlyMode, t = times) =>
     findPool(poolId)?.hourlyReservations && mode === 'hours' ? t : null
 
-  // Default times when changing to a pool by the hour
+  // Default period when changing to a pool by the hour: one hour on a single
+  // day (the first time still possible, else the next day)
   useEffect(() => {
     const pool = findPool(selectedPoolId)
     if (pool?.hourlyReservations && hourlyMode === 'hours' && !times) {
-      const defaults = defaultTimes(pool, selectedRange.startDate, currentTime)
+      const { day, ...defaults } = defaultPeriod(pool, selectedRange.startDate, currentTime)
+      const range = { startDate: day, endDate: day }
       setTimes(defaults)
-      onTimeSlotChange({ ...stateForCallbacks(), timeSlot: defaults })
+      if (!isSameDay(day, selectedRange.startDate) || !isSameDay(day, selectedRange.endDate)) {
+        setSelectedRange(range)
+        onDatesChange({ ...stateForCallbacks(), ...range })
+      }
+      onTimeSlotChange({ ...stateForCallbacks(), ...range, timeSlot: defaults })
     }
   }, [selectedPoolId, hourlyMode, times, inventoryPools])
 
@@ -537,6 +543,17 @@ function defaultTimes(pool, day, currentTime) {
   const startTime = pickups.find(x => addMinutes(atTime(day, x), STEP_MINUTES) > currentTime) || pickups[0]
   const endTime = fromMinutes(Math.min(toMinutes(startTime) + 60, toMinutes(steps[steps.length - 1])))
   return { startTime, endTime }
+}
+
+// The first time of pick up still possible from the day on (the next day if
+// none is left on it), and one hour later
+function defaultPeriod(pool, day, currentTime) {
+  const pickups = poolSteps(pool).slice(0, -1)
+  const lastPickup = atTime(day, pickups[pickups.length - 1])
+  const pickupDay = isBefore(currentTime, addMinutes(lastPickup, STEP_MINUTES))
+    ? day
+    : addDays(startOfDay(currentTime), 1)
+  return { day: pickupDay, ...defaultTimes(pool, pickupDay, currentTime) }
 }
 
 function isSamePeriod(a, b) {
