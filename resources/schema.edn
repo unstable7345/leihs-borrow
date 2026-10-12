@@ -79,15 +79,8 @@
                                     :isMemberOfAGroup {:type (non-null Boolean)
                                                        :description "Whether the user is a member of a group of the pool. In a pool with reservations by the hour only members may reserve."
                                                        :resolve :is-member-of-a-group}
-                                    :timeSlots {:type (list (non-null :TimeSlot))
-                                                :description "Time slots for same-day reservations. Empty when the pool only offers whole days."
-                                                :resolve :time-slots}
                                     :workdays {:type (list :Workday)
                                                :resolve :workdays}}}
-           :TimeSlot {:fields {:id {:type (non-null :UUID)}
-                               :name {:type (non-null String)}
-                               :startTime {:type (non-null :Time)}
-                               :endTime {:type (non-null :Time)}}}
            :Holiday {:fields {:startDate {:type :Date}
                               :endDate {:type :Date}
                               :name {:type (non-null String)}}}
