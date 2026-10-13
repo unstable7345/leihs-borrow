@@ -8,6 +8,7 @@
 (def fallbacks {:gsw-CH :de-CH
                 :de-CH :en-GB
                 :es :en-GB
+                :ca :en-GB
                 :en-US :en-GB
                 :fr-CH :en-GB})
 
