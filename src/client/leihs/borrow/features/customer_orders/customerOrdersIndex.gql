@@ -97,6 +97,8 @@ fragment reservationProps on Reservation {
   status
   startDate
   endDate
+  startTime
+  endTime
   actualEndDate
   model {
     id

@@ -44,6 +44,16 @@
 
 (defn- hhmm [time] (subs (str time) 0 5))
 
+(defn period-hours
+  "The duration in hours (to the half hour) of a reservation by the hour, from
+  start-time of d1 to end-time of d2."
+  [d1 d2 start-time end-time]
+  (let [at (fn [d t]
+             (let [[h m] (map js/parseInt (.split (hhmm t) ":"))]
+               (doto (js/Date. (.getFullYear d) (.getMonth d) (.getDate d)) (.setHours h m 0 0))))
+        minutes (/ (- (at d2 end-time) (at d1 start-time)) 60000)]
+    (/ (js/Math.round (/ minutes 30)) 2)))
+
 (defn format-period
   "Dates and times of a reservation by the hour, e.g. \"13/10/2026, 08:00–13:00\"
   or over several days \"13/10/2026 16:00 – 14/10/2026 10:00\"."

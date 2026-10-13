@@ -61,7 +61,9 @@
        [:div pool-name]
        [:div
         (if (:start-time reservation)
-          (h/format-period start-date actual-end-date (:start-time reservation) (:end-time reservation) date-locale)
+          (str (h/format-period start-date actual-end-date (:start-time reservation) (:end-time reservation) date-locale)
+               " (" (t :reservation-line.duration-hours
+                       {:hours (h/period-hours start-date actual-end-date (:start-time reservation) (:end-time reservation))}) ")")
           (str (h/format-date-range start-date actual-end-date date-locale)
                " (" (t :reservation-line.duration-days {:totalDays total-days}) ")"))]]
       [:> UI/Components.Design.ListCard.Foot {:class "fw-bold d-md-none"}

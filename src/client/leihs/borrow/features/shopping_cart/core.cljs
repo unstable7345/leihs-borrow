@@ -570,7 +570,9 @@
        [:div pool-names]
        [:div {:class (when invalid? "text-danger")}
         (if (:start-time exemplar)
-          (h/format-period start-date end-date (:start-time exemplar) (:end-time exemplar) date-locale)
+          (str (h/format-period start-date end-date (:start-time exemplar) (:end-time exemplar) date-locale)
+               " (" (t :line.duration-hours
+                       {:hours (h/period-hours start-date end-date (:start-time exemplar) (:end-time exemplar))}) ")")
           (str (h/format-date-range start-date end-date date-locale)
                " (" (t :line.duration-days {:totalDays total-days}) ")"))]]]]))
 

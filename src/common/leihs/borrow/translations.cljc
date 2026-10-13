@@ -721,6 +721,7 @@
 
                   :reservation-line
                   {:title {:de-CH "{itemCount}× {itemName}" :en-GB "{itemCount}× {itemName}" :es "{itemCount}× {itemName}" :ca "{itemCount}× {itemName}" :fr-CH "{itemCount}× {itemName}"}
+                   :duration-hours {:de-CH "{hours, plural, =1 {# Stunde} other {# Stunden}}" :en-GB "{hours, plural, =1 {# hour} other {# hours}}" :es "{hours, plural, =1 {# hora} other {# horas}}" :ca "{hours, plural, =1 {# hora} other {# hores}}" :fr-CH "{hours, plural, =1 {# heure} other {# heures}}"}
                    :duration-days {:de-CH "{totalDays, plural,
                                              =1 {# Tag}
                                              other {# Tage}
@@ -882,6 +883,7 @@
                                                    :fr-CH "{invalidItemsCount, plural,
                                                            =1 {# élément non valide}
                                                            other {# éléments non valides}}"}
+                           :duration-hours {:de-CH "{hours, plural, =1 {# Stunde} other {# Stunden}}" :en-GB "{hours, plural, =1 {# hour} other {# hours}}" :es "{hours, plural, =1 {# hora} other {# horas}}" :ca "{hours, plural, =1 {# hora} other {# hores}}" :fr-CH "{hours, plural, =1 {# heure} other {# heures}}"}
                            :duration-days {:de-CH "{totalDays, plural,
                                                                         =1 {# Tag}
                                                                         other {# Tage}
