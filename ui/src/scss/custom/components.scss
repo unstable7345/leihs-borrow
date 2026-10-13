@@ -94,14 +94,15 @@
     left: 0;
     border: $input-border-width solid transparent;
     padding: $input-padding-y 0 $input-padding-y $input-padding-x;
-    width: 4rem;
+    // wide enough for e.g. "Des de" (Catalan)
+    width: 5rem;
     white-space: nowrap;
     overflow: hidden;
     font-weight: $font-weight-normal;
   }
 
   :is(input, textarea, select):first-of-type {
-    padding-left: 4.25rem;
+    padding-left: 5.25rem;
   }
 }
 
