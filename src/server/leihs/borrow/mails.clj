@@ -41,7 +41,7 @@
                                                         [[:to_char :r.start_time "HH24:MI"] :start_time]
                                                         [[:to_char :r.end_time "HH24:MI"] :end_time]
                                                         [time-slot-sql :time_slot]
-                                                        [[:concat_ws " " :m.product :m.version] :model_name])
+                                                        [:m.name :model_name])
                                             (sql/from [:reservations :r])
                                             (sql/join [:models :m] [:= :r.model_id :m.id])
                                             (sql/where [:= :r.order_id (:id order)])
@@ -96,7 +96,7 @@
                                                    [[:to_char :r.start_time "HH24:MI"] :start_time]
                                                    [[:to_char :r.end_time "HH24:MI"] :end_time]
                                                    [time-slot-sql :time_slot]
-                                                   [[:concat_ws " " :m.product :m.version] :model_name])
+                                                   [:m.name :model_name])
                                        (sql/from [:reservations :r])
                                        (sql/join [:models :m] [:= :r.model_id :m.id])
                                        (sql/where [:= :r.order_id (:id order)])

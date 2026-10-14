@@ -101,7 +101,6 @@
                                                             (:quantity model)
                                                             0)
                                                :itemName (:name model)})
-                      :subCaption (:manufacturer model)
                       :href (when (-> model :is-reservable)
                               (routing/path-for ::routes/models-show
                                                 :model-id (:id model)))

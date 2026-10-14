@@ -149,7 +149,6 @@
                                   (get-in model [:images 0 :image-url]))
                       :isDimmed false
                       :caption (:name model)
-                      :subCaption (:manufacturer model)
                       :href  (routing/path-for ::routes/models-show
                                                :model-id (:id model)
                                                :query-params model-filters)
