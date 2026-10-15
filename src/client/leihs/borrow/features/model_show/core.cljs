@@ -2,6 +2,7 @@
   (:refer-clojure :exclude [val])
   (:require
    [day8.re-frame.tracing :refer-macros [fn-traced]]
+   [clojure.string :as string]
    [reagent.core :as reagent]
    [re-frame.core :as rf]
    [re-frame.std-interceptors :refer [path]]
@@ -395,6 +396,15 @@
              (t :order-dialog/add)]
             [:button.btn.btn-secondary {:on-click on-cancel} (t :order-dialog/cancel)]]])))))
 
+(defn name-without-manufacturer
+  "The name of a model starts with its manufacturer (\"Beyerdynamic M-160\");
+  the page shows the manufacturer under the name, so the name goes without it."
+  [{model-name :name manufacturer :manufacturer :as model}]
+  (let [prefix (some-> manufacturer string/trim not-empty (str " "))]
+    (cond-> model
+      (and prefix (string/starts-with? model-name prefix))
+      (assoc :name (subs model-name (count prefix))))))
+
 (defn enrich-recommends-with-href [m filters]
   (update-in m
              [:recommends :edges]
@@ -440,6 +450,7 @@
        :else
        [:<>
         [:> UI/Components.ModelShow {:model (-> model
+                                                name-without-manufacturer
                                                 h/camel-case-keys
                                                 (enrich-recommends-with-href filters)
                                                 autolink-description)
