@@ -453,6 +453,9 @@
                  :documents {:en-GB "Documents" :es "Documentos" :ca "Documents"
                              :de-CH "Dokumente"
                              :fr-CH "Documents"}
+                 :contents {:en-GB "Contents" :es "Contenido" :ca "Contingut"
+                            :de-CH "Inhalt"
+                            :fr-CH "Contenu"}
                  :compatibles {:en-GB "Compatible Items" :es "Artículos compatibles" :ca "Articles compatibles"
                                :de-CH "Ergänzende Gegenstände"
                                :fr-CH "Éléments compatibles"}

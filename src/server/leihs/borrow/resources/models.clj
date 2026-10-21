@@ -348,6 +348,28 @@
                     value
                     #(post-process % context args value)))
 
+(defn package-contents
+  "What the packages of a package model contain (e.g. the equipment of a room
+  booked as a package): the models of their items, with how many of each."
+  [{{tx :tx} :request} _ value]
+  (let [quantities (-> (sql/select :child.model_id [[:count :*] :quantity])
+                       (sql/from [:items :child])
+                       (sql/join [:items :package] [:= :package.id :child.parent_id])
+                       (sql/where [:= :package.model_id (:id value)])
+                       (sql/where [:= :package.retired nil])
+                       (sql/where [:= :child.retired nil])
+                       (sql/group-by :child.model_id)
+                       sql-format
+                       (->> (jdbc-query tx)
+                            (into {} (map (juxt :model_id :quantity)))))]
+    (when (seq quantities)
+      (->> (-> base-sqlmap
+               (sql/where [:in :models.id (keys quantities)])
+               sql-format)
+           (jdbc-query tx)
+           (map (fn [model] {:model model
+                             :quantity (get quantities (:id model))}))))))
+
 (defn get-one [{{tx :tx} :request} {:keys [id]} value]
   (-> base-sqlmap
       (sql/where [:= :id (or id (:model-id value))])

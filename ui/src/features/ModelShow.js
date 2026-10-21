@@ -143,6 +143,12 @@ export default function ModelShow({
           </Section>
         )}
 
+        {model.packageContents && model.packageContents.length > 0 && (
+          <Section title={t.contents} collapsible>
+            {getPackageContentsGrid(model.packageContents)}
+          </Section>
+        )}
+
         {model.properties.length > 0 && (
           <Section title={t.properties} collapsible>
             <PropertyTable properties={model.properties} />
@@ -169,6 +175,16 @@ export default function ModelShow({
       </div>
     </>
   )
+}
+
+// what a package contains (e.g. the equipment of a room), not reservable on its own, so no links
+function getPackageContentsGrid(packageContents) {
+  const list = packageContents.map(({ model, quantity }) => ({
+    id: model.id,
+    imgSrc: (model.images.find(() => true) || {}).imageUrl,
+    caption: quantity > 1 ? `${quantity} × ${model.name}` : model.name
+  }))
+  return <SquareImageGrid list={list} />
 }
 
 function getRecommendsGrid(recommends) {
@@ -208,6 +224,21 @@ const modelPropTypes = {
       id: PropTypes.string.isRequired,
       key: PropTypes.string.isRequired,
       value: PropTypes.string
+    })
+  ),
+  packageContents: PropTypes.arrayOf(
+    PropTypes.shape({
+      quantity: PropTypes.number.isRequired,
+      model: PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+        images: PropTypes.arrayOf(
+          PropTypes.shape({
+            id: PropTypes.string.isRequired,
+            imageUrl: PropTypes.string.isRequired
+          })
+        )
+      })
     })
   ),
   recommends: PropTypes.shape({
@@ -268,6 +299,7 @@ ModelShow.propTypes = {
     description: PropTypes.string.isRequired,
     properties: PropTypes.string.isRequired,
     documents: PropTypes.string.isRequired,
+    contents: PropTypes.string,
     compatibles: PropTypes.string.isRequired,
     addItemToCart: PropTypes.string.isRequired,
     removeFromFavorites: PropTypes.string.isRequired,

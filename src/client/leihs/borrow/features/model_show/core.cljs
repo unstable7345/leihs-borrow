@@ -457,6 +457,7 @@
                                      :t {:description (t :description)
                                          :properties (t :properties)
                                          :documents (t :documents)
+                                         :contents (t :contents)
                                          :compatibles (t :compatibles)
                                          :addItemToCart (t :add-item-to-cart)
                                          :addToFavorites (t :add-to-favorites)

@@ -31,6 +31,17 @@ query getModelShow(
       key
       value
     }
+    packageContents {
+      quantity
+      model {
+        id
+        name
+        images {
+          id
+          imageUrl
+        }
+      }
+    }
     recommends(first: 1000) {
       edges {
         node {

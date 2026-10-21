@@ -229,10 +229,15 @@
                                           :resolve :attachments}
                             :properties {:type (list :Property)
                                          :resolve :properties}
+                            :packageContents {:type (list (non-null :PackageContent))
+                                              :description "What the packages of a package model contain (e.g. the equipment of a room), by model."
+                                              :resolve :package-contents}
                             :recommends {; NOTE: args must match those needed for the :ModelsConnection, does not happen automatically!
                                          :args {:first {:type Int}}
                                          :type :ModelsConnection
                                          :resolve :models-connection}}}
+           :PackageContent {:fields {:model {:type (non-null :Model)}
+                                     :quantity {:type (non-null Int)}}}
            :ModelsConnection {:fields {:totalCount {:type Int}
                                        :edges {:type (list :ModelEdge)}
                                        :pageInfo {:type (non-null :PageInfo)}}}

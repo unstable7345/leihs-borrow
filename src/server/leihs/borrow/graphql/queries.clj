@@ -59,6 +59,7 @@
    :model models/get-one
    :model-availability models/get-availability
    :models-connection models/get-connection
+   :package-contents models/package-contents
    :option options/get-one
    :order orders/get-one
    :orders-connection orders/get-connection
