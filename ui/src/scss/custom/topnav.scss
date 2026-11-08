@@ -25,6 +25,10 @@
 
     &--logo {
       height: 100%;
+      // logo centered in its space, as when the image filled it
+      display: flex;
+      align-items: center;
+      justify-content: center;
       @media (min-width: $burger-breakpoint) {
         padding-right: 10px;
       }
@@ -34,12 +38,10 @@
   // the image box takes the logo's own shape so its corners can be rounded
   // like the buttons
   &__brand-logo {
-    margin: 5px 0;
     width: auto;
-    max-width: 100%;
+    max-width: calc(100% - 10px);
     height: calc(100% - 10px);
     object-fit: contain;
-    vertical-align: top;
     border-radius: $border-radius;
   }
 
@@ -82,6 +84,7 @@
     height: 50px;
     min-width: 50px;
     background-color: transparent;
+    color: var(--bs-body-color);
     padding: 10px;
 
     &[data-state='open'] {

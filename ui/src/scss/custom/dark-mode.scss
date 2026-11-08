@@ -13,6 +13,13 @@
   --leihs-gray-300: #{$gray-300}; // hover
 }
 
+// The page declares <meta name="color-scheme" content="light dark">, so without
+// this the browser draws its own controls (and buttons without a color) in the
+// operating system's mode even when borrow is set to light.
+[data-bs-theme='light'] {
+  color-scheme: light;
+}
+
 [data-bs-theme='dark'] {
   --leihs-light-shade: rgb(38, 38, 38);
   --leihs-light-gray: rgb(58, 58, 58);
