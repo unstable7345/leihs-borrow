@@ -1,0 +1,116 @@
+// Light and dark color themes.
+//
+// The theme is set on <html data-bs-theme="light|dark"> (see leihs.borrow.html
+// and leihs.borrow.lib.theme). Bootstrap switches its own CSS variables
+// (--bs-body-bg, --bs-body-color, --bs-border-color, ...); the borrow design
+// colors below are switched here. Light values are the original ones.
+
+:root,
+[data-bs-theme='light'] {
+  --leihs-light-shade: #{$light-shade}; // backgrounds, inputs
+  --leihs-light-gray: #{$light-gray}; // secondary buttons
+  --leihs-gray: #{$gray}; // borders, dots
+  --leihs-gray-300: #{$gray-300}; // hover
+}
+
+[data-bs-theme='dark'] {
+  --leihs-light-shade: rgb(38, 38, 38);
+  --leihs-light-gray: rgb(58, 58, 58);
+  --leihs-gray: rgb(90, 90, 90);
+  --leihs-gray-300: rgb(66, 66, 66);
+
+  // Buttons and badges compiled with fixed colors
+
+  .btn-secondary {
+    --bs-btn-color: var(--bs-body-color);
+    --bs-btn-bg: var(--leihs-light-gray);
+    --bs-btn-border-color: var(--leihs-light-gray);
+    --bs-btn-hover-color: var(--bs-body-color);
+    --bs-btn-hover-bg: rgb(68, 68, 68);
+    --bs-btn-hover-border-color: rgb(68, 68, 68);
+    --bs-btn-active-color: var(--bs-body-color);
+    --bs-btn-active-bg: rgb(80, 80, 80);
+    --bs-btn-active-border-color: rgb(80, 80, 80);
+    --bs-btn-disabled-color: var(--bs-body-color);
+    --bs-btn-disabled-bg: var(--leihs-light-gray);
+    --bs-btn-disabled-border-color: var(--leihs-light-gray);
+  }
+
+  // black buttons become light buttons
+  .btn-dark {
+    --bs-btn-color: var(--bs-body-bg);
+    --bs-btn-bg: var(--bs-body-color);
+    --bs-btn-border-color: var(--bs-body-color);
+    --bs-btn-hover-color: var(--bs-body-bg);
+    --bs-btn-hover-bg: rgb(210, 210, 210);
+    --bs-btn-hover-border-color: rgb(210, 210, 210);
+    --bs-btn-active-color: var(--bs-body-bg);
+    --bs-btn-active-bg: rgb(190, 190, 190);
+    --bs-btn-active-border-color: rgb(190, 190, 190);
+  }
+
+  .btn-outline-dark {
+    --bs-btn-color: var(--bs-body-color);
+    --bs-btn-border-color: var(--bs-body-color);
+    --bs-btn-hover-color: var(--bs-body-bg);
+    --bs-btn-hover-bg: var(--bs-body-color);
+    --bs-btn-hover-border-color: var(--bs-body-color);
+  }
+
+  .bg-secondary {
+    background-color: var(--leihs-light-gray) !important;
+  }
+
+  .text-dark {
+    color: var(--bs-body-color) !important;
+  }
+
+  .text-black {
+    color: var(--bs-body-color) !important;
+  }
+
+  .btn-close {
+    filter: var(--bs-btn-close-white-filter);
+  }
+
+  // product photos usually have a white background: keep them on white tiles
+  .square-container img {
+    background-color: $white !important;
+  }
+
+  // Calendar (theme of @leihs/calendar has white backgrounds)
+
+  .rdrCalendarWrapper,
+  .rdrMonthAndYearWrapper,
+  .rdrMonths,
+  .rdrMonth,
+  .rdrDateDisplayWrapper {
+    background-color: transparent;
+    color: var(--bs-body-color);
+  }
+
+  .rdrDayNumber span,
+  .rdrMonthAndYearPickers select,
+  .rdrMonthName,
+  .rdrWeekDay {
+    color: var(--bs-body-color);
+  }
+
+  // month arrows are black SVG backgrounds
+  .rdrNextPrevButton {
+    filter: invert(1);
+  }
+
+  // Icons drawn as SVG backgrounds ("currentColor" is black inside them)
+
+  .calendar-indicator {
+    $icon: url("data:image/svg+xml,<svg width='16' height='16' xmlns='http://www.w3.org/2000/svg'><g fill='none' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke='#{$body-color-dark}' stroke-width='1.6'><rect x='1.5' y='3.5' width='13' height='11' rx='1'/><path d='M1.5 11h13M5 1.5v4M11 1.5v4'/></g></svg>");
+    background-image: escape-svg($icon);
+
+    @each $state, $data in $form-validation-states {
+      @include form-validation-state-selector($state) {
+        background-image: escape-svg($icon), escape-svg($form-feedback-icon-invalid);
+      }
+    }
+  }
+}

@@ -440,7 +440,19 @@
                            :fr-CH "Aide"}
            :language {:section-title {:en-GB "Language" :es "Idioma" :ca "Idioma"
                                       :de-CH "Sprache"
-                                      :fr-CH "Langue"}}}
+                                      :fr-CH "Langue"}}
+           :theme {:section-title {:en-GB "Appearance" :es "Apariencia" :ca "Aparença"
+                                   :de-CH "Darstellung"
+                                   :fr-CH "Apparence"}
+                   :auto {:en-GB "Automatic" :es "Automático" :ca "Automàtic"
+                          :de-CH "Automatisch"
+                          :fr-CH "Automatique"}
+                   :light {:en-GB "Light" :es "Claro" :ca "Clar"
+                           :de-CH "Hell"
+                           :fr-CH "Clair"}
+                   :dark {:en-GB "Dark" :es "Oscuro" :ca "Fosc"
+                          :de-CH "Dunkel"
+                          :fr-CH "Sombre"}}}
     :model-show {:loading {:en-GB "Loading item" :es "Cargando artículo" :ca "Carregant l'article"
                            :de-CH "Gegenstand wird geladen"
                            :fr-CH "Chargement de l'élément"}

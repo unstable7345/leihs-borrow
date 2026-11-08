@@ -13,14 +13,14 @@
   text-align: left;
 
   // white bg & outline
-  border-color: $border-color;
-  background-color: $body-bg !important;
+  border-color: var(--bs-border-color);
+  background-color: var(--bs-body-bg) !important;
 }
 
 button.filter-input {
   &:hover {
     // white bg & outline
-    border-color: $border-color;
+    border-color: var(--bs-border-color);
   }
   &:focus {
     border-color: $blue !important;

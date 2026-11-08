@@ -10,11 +10,11 @@ $utilities: (
       map-merge(
         $theme-colors,
         (
-          'body': $body-bg,
+          'body': var(--#{$prefix}body-bg),
           'white': $white,
           'transparent': transparent,
-          'light-shade': $light-shade,
-          'light-gray': $light-gray
+          'light-shade': var(--leihs-light-shade),
+          'light-gray': var(--leihs-light-gray)
         )
       )
   ),
@@ -32,3 +32,21 @@ $utilities: (
 
 // do not show valid state (only invalid)
 $form-validation-states: map-remove($form-validation-states, 'valid');
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Dark color mode (html[data-bs-theme="dark"], see custom/dark-mode)
+
+// neutral grays like the light theme (no blue tone)
+$body-bg-dark: rgb(24, 24, 24);
+$body-color-dark: rgb(236, 236, 236);
+$body-secondary-bg-dark: rgb(38, 38, 38);
+$body-tertiary-bg-dark: rgb(31, 31, 31);
+$border-color-dark: rgb(72, 72, 72);
+$headings-color-dark: inherit;
+
+// links look like text, as in the light theme
+$link-color-dark: $body-color-dark;
+$link-hover-color-dark: $body-color-dark;
+
+$form-select-indicator-dark: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path stroke='#{$body-color-dark}' stroke-width='1.6' d='M2 5.5l6 6 6-6' fill='none' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+$form-switch-color-dark: $body-color-dark;

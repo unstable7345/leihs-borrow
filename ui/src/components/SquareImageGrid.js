@@ -9,7 +9,7 @@ export default function SquareImageGrid({ list = [], className, itemClassName, f
       {list.map(({ id, href, imgSrc, placeholder, caption, subCaption, isDimmed, isFavorited }) => (
         <div key={id} className="ui-square-image-grid-item col-6 col-sm-3" style={{ opacity: isDimmed ? 0.35 : 1 }}>
           <div
-            className={cx('max-w-sm overflow-hidden bg-white mx-2 mb-3 position-relative', itemClassName)}
+            className={cx('max-w-sm overflow-hidden bg-body mx-2 mb-3 position-relative', itemClassName)}
             style={{ opacity: 1 }}
           >
             {isFavorited && (

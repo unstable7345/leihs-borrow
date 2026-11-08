@@ -125,9 +125,9 @@ $input-btn-padding-y: 0.875rem;
 $input-btn-padding-x: 1.25rem;
 
 // - input color
-$input-color: $body-color;
-$input-bg: $light-shade;
-$input-border-color: $light-shade;
+$input-color: var(--bs-body-color);
+$input-bg: var(--leihs-light-shade); // follows the color theme, see custom/dark-mode
+$input-border-color: var(--leihs-light-shade);
 
 // - inputs and buttons font weight
 $input-font-weight: $font-weight-bold;
@@ -149,7 +149,7 @@ $form-switch-color: black;
 // Modals
 $modal-backdrop-bg: $black;
 $modal-backdrop-opacity: 0.5;
-$modal-content-border-color: $gray;
+$modal-content-border-color: var(--bs-border-color);
 
 // NOTE: target height for single line title in modal header is then navbar height (50px)
 $modal-header-padding-y: 15px;
@@ -158,5 +158,5 @@ $modal-header-padding-x: 15px;
 $modal-fade-transform: none;
 
 // Tabs
-$hr-border-color: $border-color;
+$hr-border-color: var(--bs-border-color);
 $hr-opacity: 1;

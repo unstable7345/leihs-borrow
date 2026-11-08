@@ -6,11 +6,31 @@
             [hiccup.page :refer [html5 #_include-js]]
             #_[ring.util.response :refer [resource-response content-type status]]))
 
+;; Applies the color theme before the stylesheet and the app load, so a dark
+;; page never flashes white. The choice ("light" or "dark") is stored in the
+;; browser; without one the page follows the operating system.
+;; Keep in sync with leihs.borrow.lib.theme.
+(def theme-script
+  "(function () {
+  var d = document.documentElement;
+  var mq = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+  function stored() { try { return localStorage.getItem('leihs-borrow-theme'); } catch (e) { return null; } }
+  function apply() {
+    var s = stored();
+    var t = (s === 'light' || s === 'dark') ? s : (mq && mq.matches ? 'dark' : 'light');
+    d.setAttribute('data-bs-theme', t);
+  }
+  apply();
+  if (mq && mq.addEventListener) { mq.addEventListener('change', apply); }
+})();")
+
 (defn head []
   [:head
    [:meta {:charset "utf-8"}]
    [:meta {:name "viewport"
            :content "width=device-width, initial-scale=1, shrink-to-fit=no"}]
+   [:meta {:name "color-scheme" :content "light dark"}]
+   [:script theme-script]
 
    (hiccup.page/include-css (cache-buster/cache-busted-path "/borrow/ui/borrow-ui.css"))])
 

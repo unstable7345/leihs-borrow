@@ -16,6 +16,7 @@
             [leihs.borrow.lib.re-frame :refer [dispatch reg-event-db
                                                reg-event-fx reg-sub subscribe]]
             [leihs.borrow.lib.routing :as routing]
+            [leihs.borrow.lib.theme :as theme]
             [leihs.borrow.lib.translate :refer [set-default-translate-path t] :as translate]
             [reagent.core :as reagent]))
 
@@ -149,6 +150,14 @@
          [:<> {:key name}
           [menu-link url name]]))]]))
 
+(def ^:private theme-options ["auto" "light" "dark"])
+
+(defn- theme-label [option]
+  (case option
+    "auto" (t :theme/auto)
+    "light" (t :theme/light)
+    "dark" (t :theme/dark)))
+
 (defn- user-menu-data []
   (let [profile-errors @(subscribe [::profile-switch/errors])
         user @(subscribe [::user])
@@ -199,7 +208,17 @@
                       (for [language languages]
                         (let [locale (:locale language)]
                           [:<> {:key locale}
-                           [:option {:value locale} (:name language)]])))]])])}))
+                           [:option {:value locale} (:name language)]])))]])
+
+                 ; color theme select
+                 [:div.mt-4.mb-3
+                  [:label.form-label {:for "theme-select"} (t :theme/section-title)]
+                  [:select#theme-select.form-select
+                   {:value @theme/preference
+                    :onChange #(theme/set-preference! (-> % .-target .-value))}
+                   (doall
+                    (for [option theme-options]
+                      [:option {:key option :value option} (theme-label option)]))]]])}))
 
 (defn calc-remaining-minutes [cart-valid-until now]
   (let [cart-remaining-seconds (max 0 (datefn/differenceInSeconds cart-valid-until now))
@@ -323,4 +342,16 @@
                 :type "button"
                 :value locale
                 :on-click (when-not selected? #(dispatch [::switch-language (-> % .-target .-value)]))}
-               (:name language)]])))])]))
+               (:name language)]])))])
+
+     ; color theme
+     [:> UI/Components.Design.Menu.Group {:title (t :theme/section-title)}
+      (let [current @theme/preference]
+        (doall
+         (for [option theme-options]
+           [:> UI/Components.Design.Menu.Button
+            {:key option
+             :isSelected (= option current)
+             :type "button"
+             :on-click #(theme/set-preference! option)}
+            (theme-label option)])))]]))
