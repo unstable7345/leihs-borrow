@@ -236,6 +236,14 @@ const OrderPanel = ({
     }
   }
 
+  // the quantity can't be higher than what the selected pool can lend
+  const maxQuantity = findPool(selectedPoolId)?.totalReservableQuantity || undefined
+  useEffect(() => {
+    if (maxQuantity && parseInt(quantity, 10) > maxQuantity) {
+      changeQuantity(maxQuantity)
+    }
+  }, [maxQuantity])
+
   function changeQuantity(number) {
     setQuantity(number)
     onQuantityChange({ ...stateForCallbacks(), quantity: number })
@@ -370,6 +378,7 @@ const OrderPanel = ({
                     value={quantity}
                     onChange={changeQuantity}
                     min={1}
+                    max={maxQuantity}
                     minusLabel={`${t(label, 'minus', locale)} 1`}
                     plusLabel={`${t(label, 'plus', locale)} 1`}
                   />

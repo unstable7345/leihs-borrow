@@ -59,15 +59,22 @@ export default function MinusPlusControl({
 
   // event handlers:
 
+  // never more than the maximum (typed or with the plus button)
+  function capped(num) {
+    return !isNaN(max) && num > max ? max : num
+  }
+
   function add(summand) {
-    const num = isNaN(lastNum.current) ? defaultNumber : lastNum.current + summand
+    const num = capped(isNaN(lastNum.current) ? defaultNumber : lastNum.current + summand)
     update(num)
     emitChange(num)
   }
 
   function change(e) {
-    update(e.target.value)
-    emitChange(e.target.value)
+    const num = parseInt(e.target.value, 10)
+    const value = !isNaN(num) && capped(num) !== num ? capped(num) : e.target.value
+    update(value)
+    emitChange(value)
   }
 
   function buttonMouseDown(e) {
