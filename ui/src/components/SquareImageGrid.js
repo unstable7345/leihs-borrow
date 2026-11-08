@@ -3,7 +3,15 @@ import cx from 'classnames'
 import { StarIcon } from './Icons'
 import SquareImage from './SquareImage'
 
-export default function SquareImageGrid({ list = [], className, itemClassName, favoriteTitle, ...restProps }) {
+// fit: 'contain' shows the whole photo (products); 'cover' fills the square (scene photos, e.g. categories)
+export default function SquareImageGrid({
+  list = [],
+  className,
+  itemClassName,
+  favoriteTitle,
+  fit = 'contain',
+  ...restProps
+}) {
   return (
     <div className={cx('ui-square-image-grid row g-0 d-flex flex-wrap mx-n2', className)} {...restProps}>
       {list.map(({ id, href, imgSrc, placeholder, caption, subCaption, isDimmed, isFavorited }) => (
@@ -17,7 +25,7 @@ export default function SquareImageGrid({ list = [], className, itemClassName, f
                 <StarIcon />
               </div>
             )}
-            <SquareImage href={href} imgSrc={imgSrc} placeholder={placeholder} fit="cover" className="rounded border" />
+            <SquareImage href={href} imgSrc={imgSrc} placeholder={placeholder} fit={fit} className="rounded border" />
             <div className="pt-2">
               <a className="stretched-link" href={href}>
                 <div className="ui-caption small fw-bold">{caption}</div>

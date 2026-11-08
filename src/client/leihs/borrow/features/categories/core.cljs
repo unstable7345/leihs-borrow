@@ -83,7 +83,7 @@
     [:<>
      (when errors
        [ui/error-view errors])
-     [:> UI/Components.Design.SquareImageGrid {:className "ui-category-list" :list all-items}]]))
+     [:> UI/Components.Design.SquareImageGrid {:className "ui-category-list" :fit "cover" :list all-items}]]))
 
 (defn category-breadcrumbs [ancestors model-filters]
   [:> UI/Components.CategoryBreadcrumbs
