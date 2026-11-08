@@ -78,6 +78,19 @@
     background-color: $white !important;
   }
 
+  // photo carousel arrows sit on the white photo: keep their light look
+  .slide-button.btn-secondary {
+    --bs-btn-color: #{$black};
+    --bs-btn-bg: #{rgba($light-gray, 0.9)};
+    --bs-btn-border-color: transparent;
+    --bs-btn-hover-color: #{$black};
+    --bs-btn-hover-bg: #{$gray-400};
+    --bs-btn-hover-border-color: transparent;
+    --bs-btn-active-color: #{$black};
+    --bs-btn-active-bg: #{$gray-500};
+    --bs-btn-active-border-color: transparent;
+  }
+
   // Calendar (theme of @leihs/calendar has white backgrounds)
 
   .rdrCalendarWrapper,
