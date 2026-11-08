@@ -80,9 +80,17 @@
     filter: var(--bs-btn-close-white-filter);
   }
 
-  // product photos usually have a white background: keep them on white tiles
-  .square-container img {
-    background-color: $white !important;
+  // Product photos sit on a light gray frame instead of white, and "multiply"
+  // blends the photo's own white background into that gray, so there is no
+  // bright white box in dark mode.
+  .square-container {
+    background-color: rgb(214, 214, 214);
+    isolation: isolate;
+
+    img {
+      background-color: transparent !important;
+      mix-blend-mode: multiply;
+    }
   }
 
   // photo carousel arrows sit on the white photo: keep their light look

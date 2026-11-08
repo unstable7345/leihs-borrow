@@ -86,6 +86,11 @@ input.selectish-feedback-icon {
   object-fit: contain;
 }
 
+.object-cover {
+  -o-object-fit: cover;
+  object-fit: cover;
+}
+
 .decorate-links a,
 a.decorate-links {
   color: $blue;

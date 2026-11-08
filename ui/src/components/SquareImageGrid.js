@@ -17,7 +17,7 @@ export default function SquareImageGrid({ list = [], className, itemClassName, f
                 <StarIcon />
               </div>
             )}
-            <SquareImage href={href} imgSrc={imgSrc} placeholder={placeholder} className="rounded border" />
+            <SquareImage href={href} imgSrc={imgSrc} placeholder={placeholder} fit="cover" className="rounded border" />
             <div className="pt-2">
               <a className="stretched-link" href={href}>
                 <div className="ui-caption small fw-bold">{caption}</div>

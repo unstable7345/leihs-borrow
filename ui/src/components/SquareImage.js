@@ -7,7 +7,9 @@ export default function SquareImage({
   placeholder,
   className,
   imgClassName,
-  paddingClassName = 'p-2',
+  // 'contain': the whole photo with a margin; 'cover': the photo fills the square (edges may be cut)
+  fit = 'contain',
+  paddingClassName = fit === 'cover' ? 'p-0' : 'p-2',
   ...restProps
 }) {
   return (
@@ -18,7 +20,8 @@ export default function SquareImage({
             src={imgSrc}
             alt=""
             className={cx(
-              'bg-body position-absolute object-contain object-center img-fluid h-100 w-100',
+              'bg-body position-absolute object-center img-fluid h-100 w-100',
+              fit === 'cover' ? 'object-cover' : 'object-contain',
               imgClassName,
               paddingClassName
             )}
