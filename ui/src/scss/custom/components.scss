@@ -272,6 +272,9 @@ ul.category-breadcrumbs {
       display: block;
       flex: 0 0 100px;
     }
+    .square-container {
+      border-radius: $border-radius;
+    }
   }
 
   &__content {

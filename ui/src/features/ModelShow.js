@@ -88,7 +88,7 @@ export default function ModelShow({
                   <SquareImage
                     key={i}
                     imgSrc={image.imageUrl}
-                    className="mb-3 pe-none square-container--not-too-high"
+                    className="mb-3 pe-none rounded square-container--not-too-high"
                   />
                 )
               })}
@@ -108,7 +108,7 @@ export default function ModelShow({
       )}
       {model.images.length === 1 && (
         <div className="mb-4">
-          <SquareImage imgSrc={model.images[0].imageUrl} className="square-container--not-too-high" />
+          <SquareImage imgSrc={model.images[0].imageUrl} className="rounded square-container--not-too-high" />
         </div>
       )}
 
