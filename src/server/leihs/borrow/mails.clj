@@ -22,6 +22,17 @@
 (def ^:private time-slot-sql
   [:raw "CASE WHEN r.start_time IS NULL THEN NULL ELSE to_char(r.start_time, 'HH24:MI') || '–' || to_char(r.end_time, 'HH24:MI') END"])
 
+;; Where the "received order" notifications of a pool go: its notification
+;; email when it has one, else its own email, which is also the sender.
+(defn- notification-email [tx pool-id]
+  (-> (sql/select :notification_email)
+      (sql/from :inventory_pools)
+      (sql/where [:= :id pool-id])
+      sql-format
+      (->> (jdbc-query tx))
+      first
+      :notification_email))
+
 (defn send-received [tx order settings]
   (let [inventory-pool (->> order
                             :inventory_pool_id
@@ -58,11 +69,12 @@
                                                             :purpose purpose
                                                             :order_url order-url}
                                                    :filters {}})
-                           address (or (:email pool) (:smtp_default_from_address settings))]
+                           address (or (:email pool) (:smtp_default_from_address settings))
+                           to-address (or (notification-email tx (:id pool)) address)]
                        (-> (sql/insert-into :emails)
                            (sql/values [{:inventory_pool_id (:id pool)
                                          :from_address address
-                                         :to_address address
+                                         :to_address to-address
                                          :subject (:subject tmpl)
                                          :body email-body
                                          :template "received"
