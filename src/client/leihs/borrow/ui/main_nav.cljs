@@ -241,6 +241,7 @@
       [:> UI/Components.Design.Topnav
        {:brandName "Leihs"
         :brandLogoLight (:logo-light app-settings)
+        :brandLogoDark (:logo-dark app-settings)
         :brandLinkProps {:href (routing/path-for ::routes/home)}
         :mainMenuIsOpen (= current-menu "main")
         :mainMenuLinkProps {:on-click #(dispatch [::set-current-menu (when-not (= current-menu "main") "main")])

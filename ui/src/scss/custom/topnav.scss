@@ -45,6 +45,17 @@
     border-radius: $border-radius;
   }
 
+  // both logos uploaded: show the one of the current theme
+  &__brand-logo--dark-only {
+    display: none;
+  }
+  [data-bs-theme='dark'] &__brand-logo--light-only {
+    display: none;
+  }
+  [data-bs-theme='dark'] &__brand-logo--dark-only {
+    display: inline;
+  }
+
   // --
 
   &__main-menu {

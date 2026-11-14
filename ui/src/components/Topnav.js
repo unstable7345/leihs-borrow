@@ -8,6 +8,7 @@ export default function Topnav({
   brandName = 'Leihs',
   brandLinkProps = {},
   brandLogoLight = null,
+  brandLogoDark = null,
 
   cartItemCount,
   invalidCartItemCount = 0,
@@ -57,9 +58,26 @@ export default function Topnav({
         )}
       </a>
       {/* Title ("Brand") */}
-      <a className={cx('topnav__brand-link', { 'topnav__brand-link--logo': brandLogoLight })} {...brandLinkProps}>
-        {brandLogoLight && <img src={brandLogoLight} alt={`${brandName} Logo`} className="topnav__brand-logo" />}
-        {!brandLogoLight && brandName}
+      <a
+        className={cx('topnav__brand-link', { 'topnav__brand-link--logo': brandLogoLight || brandLogoDark })}
+        {...brandLinkProps}
+      >
+        {/* With both logos, CSS shows the one of the current theme; with one, it is shown in both */}
+        {(brandLogoLight || brandLogoDark) && (
+          <img
+            src={brandLogoLight || brandLogoDark}
+            alt={`${brandName} Logo`}
+            className={cx('topnav__brand-logo', { 'topnav__brand-logo--light-only': brandLogoLight && brandLogoDark })}
+          />
+        )}
+        {brandLogoLight && brandLogoDark && (
+          <img
+            src={brandLogoDark}
+            alt={`${brandName} Logo`}
+            className="topnav__brand-logo topnav__brand-logo--dark-only"
+          />
+        )}
+        {!brandLogoLight && !brandLogoDark && brandName}
       </a>
       {/* Nav (for lg screen) */}
       {mainMenuItems.length > 0 && (
@@ -185,7 +203,10 @@ function renderDropdownContent({ items = [], children, ...restProps }) {
 Topnav.propTypes = {
   /** Brand (app) name */
   brandName: PropTypes.string,
+  /** Logo for the light theme (data URL or URL) */
   brandLogoLight: PropTypes.node,
+  /** Logo for the dark theme; without it, the light one is used in both */
+  brandLogoDark: PropTypes.node,
   /** Props for the `a` element around the brand name */
   brandLinkProps: PropTypes.shape({}),
 
