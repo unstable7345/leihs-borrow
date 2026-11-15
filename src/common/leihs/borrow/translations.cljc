@@ -87,7 +87,7 @@
              :occupancy-free {:en-GB "Free" :es "Libre" :ca "Lliure" :de-CH "Frei" :fr-CH "Libre"}
              :occupancy-busy {:en-GB "Occupied" :es "Ocupado" :ca "Ocupat" :de-CH "Belegt" :fr-CH "Occupé"}
              :occupancy-selected {:en-GB "Your reservation" :es "Tu reserva" :ca "La teva reserva" :de-CH "Deine Reservation" :fr-CH "Ta réservation"}
-             :occupancy-available {:en-GB "{amount, number} available" :es "{amount, number} disponibles" :ca "{amount, number} disponibles" :de-CH "{amount, number} verfügbar" :fr-CH "{amount, number} disponibles"}
+             :occupancy-available {:en-GB "{amount, number} available" :es "{amount, plural, one {# disponible} other {# disponibles}}" :ca "{amount, plural, one {# disponible} other {# disponibles}}" :de-CH "{amount, number} verfügbar" :fr-CH "{amount, plural, one {# disponible} other {# disponibles}}"}
              :occupancy-loading {:en-GB "Loading occupancy…" :es "Cargando la ocupación…" :ca "Carregant l'ocupació…" :de-CH "Belegung wird geladen…" :fr-CH "Chargement de l'occupation…"}
              :previous-day {:en-GB "Previous day" :es "Día anterior" :ca "Dia anterior" :de-CH "Vorheriger Tag" :fr-CH "Jour précédent"}
              :next-day {:en-GB "Next day" :es "Día siguiente" :ca "Dia següent" :de-CH "Nächster Tag" :fr-CH "Jour suivant"}}

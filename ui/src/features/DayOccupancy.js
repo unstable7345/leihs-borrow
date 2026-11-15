@@ -57,7 +57,7 @@ const DayOccupancy = ({
               const busy = step.quantity < wantedQuantity
               const selected = isSelected(step)
               const state = busy ? txt.busy : txt.free
-              const amount = step.quantity !== 1 && !busy ? ` (${txt.available(step.quantity)})` : ''
+              const amount = !busy ? ` (${txt.available(step.quantity)})` : ''
               return (
                 <button
                   key={step.startTime}
