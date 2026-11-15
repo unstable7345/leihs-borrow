@@ -67,7 +67,10 @@
                                                             :reservations reservations
                                                             :comment nil
                                                             :purpose purpose
-                                                            :order_url order-url}
+                                                            :order_url order-url
+                                                            ;; approved on submission
+                                                            ;; (orders/auto-approve?)
+                                                            :approved (= "approved" (:state order))}
                                                    :filters {}})
                            address (or (:email pool) (:smtp_default_from_address settings))
                            to-address (or (notification-email tx (:id pool)) address)]
