@@ -5,7 +5,7 @@
             [next.jdbc :as jdbc]
             [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
             [clojure.set :as set]
-            [clojure.string :refer [upper-case]]
+            [clojure.string :as str :refer [upper-case]]
             [leihs.borrow.graphql.connections :as connections]
             [leihs.borrow.graphql.target-user :as target-user]
             [leihs.borrow.mails :as mails]
@@ -339,6 +339,28 @@
        :invalidReservationIds (->> (rs/get-drafts tx user-id) (map :id))
        :user-id user-id})))
 
+;; An order of a pool is approved on submission when the pool wants it, every
+;; reservation is by the hour and starts and ends on the same day (the
+;; material does not leave the premises overnight) and the user is not
+;; suspended there. Whole days and multi-day reservations still need approval.
+(defn- auto-approve? [tx user-id pool-id reservation-ids]
+  (-> [(str "SELECT ip.auto_approve_same_day
+               AND bool_and(r.start_time IS NOT NULL AND r.start_date = r.end_date)
+               AND NOT EXISTS (SELECT 1 FROM suspensions s
+                               WHERE s.inventory_pool_id = ip.id
+                                 AND s.user_id = ?
+                                 AND CURRENT_DATE <= s.suspended_until) AS auto
+          FROM reservations r
+          JOIN inventory_pools ip ON ip.id = ?
+          WHERE r.id IN (" (str/join ", " (repeat (count reservation-ids) "?")) ")
+          GROUP BY ip.id, ip.auto_approve_same_day")
+       user-id pool-id]
+      (into reservation-ids)
+      (->> (jdbc-query tx))
+      first
+      :auto
+      boolean))
+
 (defn submit
   [{{tx :tx {auth-entity-id :id} :authenticated-entity,
      settings :settings, after-tx-hooks* :after-tx-hooks*}
@@ -371,10 +393,12 @@
                    :id)]
       (doseq [[pool-id rs]
               (seq (group-by :inventory_pool_id reservations))]
-        (let [order (-> (sql/insert-into :orders)
+        (let [approved? (auto-approve? tx user-id pool-id (map :id rs))
+              state (if approved? "approved" "submitted")
+              order (-> (sql/insert-into :orders)
                         (sql/values [{:user_id user-id
                                       :inventory_pool_id pool-id
-                                      :state "submitted"
+                                      :state state
                                       :purpose purpose
                                       :customer_order_id uuid}])
                         (sql/returning :*)
@@ -382,7 +406,7 @@
                         (->> (jdbc-query tx))
                         first)]
           (-> (sql/update :reservations)
-              (sql/set (cond-> {:status "submitted"
+              (sql/set (cond-> {:status state
                                 :inventory_pool_id pool-id
                                 :order_id (:id order)}
                          (not= user-id auth-entity-id)
@@ -397,7 +421,9 @@
           (swap! after-tx-hooks* conj
                  (fn [_ _]
                    (jdbc/with-transaction+options [tx (db/get-ds)]
-                     (mails/send-submitted tx order settings))))))
+                     (if approved?
+                       (mails/send-approved tx order settings)
+                       (mails/send-submitted tx order settings)))))))
       (get-one-by-id tx user-id uuid))))
 
 (defn cancel

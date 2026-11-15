@@ -67,7 +67,10 @@
                                                             :reservations reservations
                                                             :comment nil
                                                             :purpose purpose
-                                                            :order_url order-url}
+                                                            :order_url order-url
+                                                            ;; approved on submission
+                                                            ;; (orders/auto-approve?)
+                                                            :approved (= "approved" (:state order))}
                                                    :filters {}})
                            address (or (:email pool) (:smtp_default_from_address settings))
                            to-address (or (notification-email tx (:id pool)) address)]
@@ -84,7 +87,7 @@
            (catch Exception e
              (log-mail-failure (:id inventory-pool) e))))))
 
-(defn send-submitted [tx order settings]
+(defn- send-to-customer [tx order settings template]
   (let [user (users/get-by-id tx (:user_id order))]
     (try
       (let [target-user-id (if (delegation? user)
@@ -99,10 +102,10 @@
                                 (pools/get-by-id tx)
                                 (email-vars/merge-workdays tx lang-locale)
                                 (email-vars/merge-holidays tx lang-locale))
-            tmpl (get-tmpl tx "submitted" (:id inventory-pool) (name lang-locale))]
+            tmpl (get-tmpl tx template (:id inventory-pool) (name lang-locale))]
         (cond
           (not inventory-pool) (warn "Pool for sending email not found or it is inactive.")
-          (not tmpl) (warn (format "No 'submitted' mail template found for pool '%s'." (:id inventory-pool)))
+          (not tmpl) (warn (format "No '%s' mail template found for pool '%s'." template (:id inventory-pool)))
           :else (let [email-signature (:email_signature settings)
                       reservations (-> (sql/select :r.quantity, :r.start_date, :r.end_date
                                                    [[:to_char :r.start_time "HH24:MI"] :start_time]
@@ -133,12 +136,19 @@
                                     :to_address to-address
                                     :subject (:subject tmpl)
                                     :body email-body
-                                    :template "submitted"
+                                    :template template
                                     :source_pool_id (:id inventory-pool)}])
                       sql-format
                       (->> (jdbc-execute! tx))))))
       (catch Exception e
         (log-mail-failure (:id user) e)))))
+
+(defn send-submitted [tx order settings]
+  (send-to-customer tx order settings "submitted"))
+
+;; For orders approved on submission (see orders/auto-approve?).
+(defn send-approved [tx order settings]
+  (send-to-customer tx order settings "approved"))
 
 (comment (let [tx (db/get-ds)
                order (-> (sql/select :*)

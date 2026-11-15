@@ -19,6 +19,7 @@ mutation submitOrder(
     untilDate
     totalDays
     state: rentalState
+    refinedRentalState
     totalQuantity
   }
 }

@@ -957,7 +957,10 @@
                     :order-success-notification {:title {:en-GB "Order submitted" :es "Pedido enviado" :ca "Comanda enviada" :de-CH "Bestellung übermittelt" :fr-CH "Commande envoyée"}
                                                  :order-submitted {:en-GB "Order was submitted but still needs to be approved!" :es "El pedido fue enviado, pero todavía debe ser aprobado." :ca "La comanda s'ha enviat, però encara s'ha d'aprovar."
                                                                    :de-CH "Die Bestellung wurde übermittelt, muss aber noch genehmigt werden!"
-                                                                   :fr-CH "La commande a été envoyée mais doit encore être approuvée."}}
+                                                                   :fr-CH "La commande a été envoyée mais doit encore être approuvée."}
+                                                 :order-approved {:en-GB "Order was submitted and approved. You can pick it up at the reserved time." :es "El pedido fue enviado y aprobado. Puedes pasar a recogerlo a la hora reservada." :ca "La comanda s'ha enviat i aprovat. La pots passar a recollir a l'hora reservada."
+                                                                  :de-CH "Die Bestellung wurde übermittelt und genehmigt. Du kannst sie zur reservierten Zeit abholen."
+                                                                  :fr-CH "La commande a été envoyée et approuvée. Tu peux venir la chercher à l'heure réservée."}}
                     :delete-dialog {:dialog-title {:en-GB "Delete cart" :es "Vaciar carrito" :ca "Buidar la cistella"
                                                    :de-CH "Warenkorb löschen"
                                                    :fr-CH "Supprimer le panier"}
