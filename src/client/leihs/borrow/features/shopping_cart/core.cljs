@@ -13,6 +13,7 @@
    [leihs.borrow.lib.errors :as errors]
    [leihs.borrow.lib.form-helpers :refer [UiTextarea]]
    [leihs.borrow.lib.helpers :as h]
+   [leihs.borrow.lib.day-occupancy :as occupancy]
    [leihs.borrow.lib.period-availability :as period]
    [leihs.borrow.lib.prefs :as prefs]
    [leihs.borrow.lib.re-frame :refer [dispatch reg-event-db reg-event-fx
@@ -254,6 +255,7 @@
                        :quantity quantity
                        :user-id user-id})
         :dispatch-n (list [::period/clear]
+                          [::occupancy/clear]
                           [::fetch-total-reservable-quantities
                            (h/date-format-day start-of-current-month)
                            (h/date-format-day fetch-until-date)])}))))
@@ -500,6 +502,12 @@
                                           :user-id user-id
                                           :exclude-reservation-ids (map :id res-lines)}
                                          %])
+             :dayOccupancy (clj->js (h/camel-case-keys @(subscribe [::occupancy/result])))
+             :onOccupancyDayChange #(dispatch [::occupancy/fetch
+                                               {:model-id (:id model)
+                                                :user-id user-id
+                                                :exclude-reservation-ids (map :id res-lines)}
+                                               %])
              :onTimeSlotChange (fn [jsargs]
                                  (dispatch [::change-time-slot
                                             (-> jsargs (js->clj :keywordize-keys true) :timeSlot)]))

@@ -19,6 +19,18 @@ export const orderPanelTexts = {
     'pickup-time': { 'de-CH': 'Abholung um' },
     'return-time': { 'de-CH': 'Rückgabe um' },
     'by-hours-info': { 'de-CH': 'Abholung am ersten Tag, Rückgabe am letzten Tag zur gewählten Zeit.' },
+    occupancy: { 'de-CH': 'Belegung am {day}' },
+    'occupancy-info': {
+      'de-CH':
+        'Tippe auf einen freien Abschnitt, um dann abzuholen, und auf einen späteren, um die Reservation bis dahin zu verlängern.'
+    },
+    'occupancy-free': { 'de-CH': 'Frei' },
+    'occupancy-busy': { 'de-CH': 'Belegt' },
+    'occupancy-selected': { 'de-CH': 'Deine Reservation' },
+    'occupancy-available': { 'de-CH': '{amount, number} verfügbar' },
+    'occupancy-loading': { 'de-CH': 'Belegung wird geladen…' },
+    'previous-day': { 'de-CH': 'Vorheriger Tag' },
+    'next-day': { 'de-CH': 'Nächster Tag' },
     'whole-day-hours-info': { 'de-CH': 'Ganze Tage, von {startTime} bis {endTime}.' },
     'max-hours-info': { 'de-CH': 'Höchstens {hours} Stunden.' },
     'no-max-hours-info': { 'de-CH': 'Ohne Stundenbegrenzung.' }

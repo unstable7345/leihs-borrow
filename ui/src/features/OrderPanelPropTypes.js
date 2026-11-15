@@ -90,6 +90,16 @@ const OrderPanelPropTypes = {
   }),
   /** callback, when the period by the hour changes (argument: state incl. `timeSlot`) */
   onPeriodChange: PropTypes.func,
+  /** quantity still available in each step of 30 minutes of the day given to `onOccupancyDayChange` (`{poolId, date: "yyyy-MM-dd", steps: [{startTime, endTime, quantity}]}`) */
+  dayOccupancy: PropTypes.shape({
+    poolId: PropTypes.string,
+    date: PropTypes.string,
+    steps: PropTypes.arrayOf(
+      PropTypes.shape({ startTime: PropTypes.string, endTime: PropTypes.string, quantity: PropTypes.number })
+    )
+  }),
+  /** callback, when the day of pick up of a period by the hour changes (argument: `{poolId, date}`) */
+  onOccupancyDayChange: PropTypes.func,
 
   /** callback, submits user selection. arguments: `{startDate, endDate, quantity, poolId, timeSlot}` */
   onSubmit: PropTypes.func.isRequired,

@@ -1,0 +1,15 @@
+query getDayOccupancy(
+  $modelId: UUID!
+  $userId: UUID
+  $poolId: UUID!
+  $date: Date!
+  $excludeReservationIds: [UUID!]
+) {
+  model(userId: $userId, id: $modelId) {
+    dayOccupancy(inventoryPoolId: $poolId, date: $date, excludeReservationIds: $excludeReservationIds) {
+      startTime
+      endTime
+      quantity
+    }
+  }
+}

@@ -5,6 +5,7 @@
    [leihs.borrow.resources.contracts :as contracts]
    [leihs.borrow.resources.delegations :as delegations]
    [leihs.borrow.resources.holidays :as holidays]
+   [leihs.borrow.resources.day-occupancy :as day-occupancy]
    [leihs.borrow.resources.hourly-reservations :as hourly-reservations]
    [leihs.borrow.resources.images :as images]
    [leihs.borrow.resources.inventory-pools :as inventory-pools]
@@ -28,6 +29,7 @@
    :approved-pool-orders-count orders/approved-pool-orders-count
    :attachments attachments/get-multiple
    :available-quantity-in-date-range models/available-quantity-in-date-range
+   :day-occupancy day-occupancy/day-occupancy
    :category categories/get-one
    :categories categories/get-multiple
    :contract contracts/get-one

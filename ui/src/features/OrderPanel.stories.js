@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { action } from '@storybook/addon-actions'
 import { FAKE_STYLEGUIDE_TIME } from '../../.storybook/fake-time'
 import { locale as fakeLocale, orderPanelTexts as fakeTxt } from '../story-utils/fake-localization'
-import { addYears, endOfMonth } from 'date-fns'
+import { addYears, endOfMonth, formatISO } from 'date-fns'
 import { de as dateLocale } from 'date-fns/locale'
 
 import { getOrderPanelMockData } from '../story-utils/sample-props'
@@ -115,6 +115,18 @@ export const byTheHour = () => {
     isMemberOfAGroup: true
   }))
   const [isValid, setIsValid] = useState()
+  // a room: occupied 10:00–12:00 and 15:30–17:00 every day
+  const [dayOccupancy, setDayOccupancy] = useState()
+  const occupancyFor = ({ poolId, date }) => {
+    const steps = []
+    for (let m = 8 * 60; m < 20 * 60; m += 30) {
+      const hhmm = x => `${String(Math.floor(x / 60)).padStart(2, '0')}:${String(x % 60).padStart(2, '0')}`
+      const busy = (m >= 10 * 60 && m < 12 * 60) || (m >= 15.5 * 60 && m < 17 * 60)
+      steps.push({ startTime: hhmm(m), endTime: hhmm(m + 30), quantity: busy ? 0 : 1 })
+    }
+    setDayOccupancy(null)
+    setTimeout(() => setDayOccupancy({ poolId, date: formatISO(date, { representation: 'date' }), steps }), 300)
+  }
 
   return (
     <ModalDialog title="Gegenstand hinzufügen" className="ui-booking-calendar" shown>
@@ -131,6 +143,8 @@ export const byTheHour = () => {
           initialInventoryPoolId={initialInventoryPoolId}
           onTimeSlotChange={action('time-slot-change')}
           onPeriodChange={action('period-change')}
+          dayOccupancy={dayOccupancy}
+          onOccupancyDayChange={occupancyFor}
           onSubmit={action('submit')}
           onValidate={setIsValid}
           locale={fakeLocale}

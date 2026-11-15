@@ -21,6 +21,7 @@ import MinusPlusControl from '../components/MinusPlusControl'
 import DateRangePicker from '../components/DateRangePicker'
 import Warning from '../components/Warning'
 import InfoMessage from '../components/InfoMessage'
+import DayOccupancy from './DayOccupancy'
 import orderPanelPropTypes from './OrderPanelPropTypes'
 import cx from 'classnames'
 
@@ -55,6 +56,9 @@ const OrderPanel = ({
   //
   periodAvailability,
   onPeriodChange = noop,
+  //
+  dayOccupancy,
+  onOccupancyDayChange = noop,
   //
   onValidate = noop,
   onSubmit = noop,
@@ -110,6 +114,13 @@ const OrderPanel = ({
       onPeriodChange(stateForCallbacks())
     }
   }, [selectedPoolId, hourlyMode, times, selectedRange])
+
+  // The occupancy of the day of pick up is asked for separately
+  useEffect(() => {
+    if (activeTimes() && isValid(selectedRange.startDate)) {
+      onOccupancyDayChange({ poolId: selectedPoolId, date: selectedRange.startDate })
+    }
+  }, [selectedPoolId, hourlyMode, !!times, selectedRange.startDate?.getTime()])
 
   // State depending on the input states (e.g. validation result)
   const [dependentState, setDependentState] = useState()
@@ -281,6 +292,43 @@ const OrderPanel = ({
     onDatesChange({ ...stateForCallbacks(), ...range })
   }
 
+  // A tap on a free step of the occupancy: after the chosen time of pick up
+  // (and with only free steps in between) it extends the reservation until
+  // that step, otherwise it picks up then, for an hour at most until the
+  // next occupied step
+  function pickOccupancyStep(steps, index) {
+    const step = steps[index]
+    const day = selectedRange.startDate
+    const isFree = s => s.quantity >= quantity
+    const startIndex = times ? steps.findIndex(s => s.startTime === times.startTime) : -1
+    const singleDay = isSameDay(selectedRange.startDate, selectedRange.endDate)
+    let newTimes
+    if (singleDay && startIndex >= 0 && index > startIndex && steps.slice(startIndex, index + 1).every(isFree)) {
+      newTimes = { startTime: times.startTime, endTime: step.endTime }
+    } else {
+      let endIndex = index
+      while (endIndex + 1 < steps.length && endIndex - index + 1 < 60 / STEP_MINUTES && isFree(steps[endIndex + 1])) {
+        endIndex++
+      }
+      newTimes = { startTime: step.startTime, endTime: steps[endIndex].endTime }
+    }
+    const range = { startDate: day, endDate: day }
+    setTimes(newTimes)
+    if (!singleDay) {
+      setSelectedRange(range)
+      onDatesChange({ ...stateForCallbacks(), ...range })
+    }
+    onTimeSlotChange({ ...stateForCallbacks(), ...range, timeSlot: newTimes })
+  }
+
+  // The arrows of the occupancy: the same times on another day
+  function changeOccupancyDay(days) {
+    const day = addDays(selectedRange.startDate, days)
+    const range = { startDate: day, endDate: day }
+    setSelectedRange(range)
+    onDatesChange({ ...stateForCallbacks(), ...range })
+  }
+
   const stateForCallbacks = () => ({
     startDate: selectedRange.startDate,
     endDate: selectedRange.endDate,
@@ -439,6 +487,57 @@ const OrderPanel = ({
                           </select>
                         </div>
                       </div>
+                    )}
+                    {hourlyMode === 'hours' && times && isValid(selectedRange.startDate) && (
+                      <Let
+                        occupancy={
+                          dayOccupancy &&
+                          dayOccupancy.poolId === selectedPoolId &&
+                          dayOccupancy.date === formatISO(selectedRange.startDate, { representation: 'date' })
+                            ? dayOccupancy
+                            : null
+                        }
+                        singleDay={isSameDay(selectedRange.startDate, selectedRange.endDate)}
+                      >
+                        {({ occupancy, singleDay }) => (
+                          <div className="mt-3">
+                            <DayOccupancy
+                              dayLabel={format(selectedRange.startDate, 'EEEE d MMMM', {
+                                locale: dateLocale || defaultDateLocale
+                              })}
+                              steps={occupancy ? occupancy.steps : null}
+                              selection={
+                                singleDay
+                                  ? times
+                                  : {
+                                      startTime: times.startTime,
+                                      endTime: hhmm(selectedPool.hourlyReservationsEndTime)
+                                    }
+                              }
+                              wantedQuantity={quantity}
+                              isPast={step =>
+                                addMinutes(atTime(selectedRange.startDate, step.startTime), STEP_MINUTES) <= currentTime
+                              }
+                              onPickStep={index => pickOccupancyStep(occupancy.steps, index)}
+                              onPreviousDay={() => changeOccupancyDay(-1)}
+                              onNextDay={() => changeOccupancyDay(1)}
+                              canGoBack={selectedRange.startDate > today}
+                              canGoForward={addDays(selectedRange.startDate, 1) <= maxDate}
+                              txt={{
+                                title: day => t(label, 'occupancy', locale, { day }),
+                                free: t(label, 'occupancy-free', locale),
+                                busy: t(label, 'occupancy-busy', locale),
+                                selected: t(label, 'occupancy-selected', locale),
+                                available: amount => t(label, 'occupancy-available', locale, { amount }),
+                                loading: t(label, 'occupancy-loading', locale),
+                                previousDay: t(label, 'previous-day', locale),
+                                nextDay: t(label, 'next-day', locale)
+                              }}
+                            />
+                            <InfoMessage className="mt-2">{t(label, 'occupancy-info', locale)}</InfoMessage>
+                          </div>
+                        )}
+                      </Let>
                     )}
                     <InfoMessage className="mt-2">
                       {hourlyMode === 'hours'

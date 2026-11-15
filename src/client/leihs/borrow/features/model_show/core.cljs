@@ -30,6 +30,7 @@
    [leihs.borrow.features.model-show.availability :as availability]
    [leihs.core.core :refer [dissoc-in flip]]
    [leihs.borrow.lib.prefs :as prefs]
+   [leihs.borrow.lib.day-occupancy :as occupancy]
    [leihs.borrow.lib.period-availability :as period]
    ["autolinker" :as autolinker]))
 
@@ -213,6 +214,7 @@
     ; the order panel always starts with "whole day" (by the hour follows
     ; from the panel in pools offering it)
     :dispatch-n (list [::period/clear]
+                      [::occupancy/clear]
                       [::change-time-slot user-id nil])}))
 
 (reg-event-db
@@ -384,6 +386,8 @@
                                              (-> jsargs (js->clj :keywordize-keys true) :timeSlot)]))
               :periodAvailability (clj->js @(subscribe [::period/result]))
               :onPeriodChange #(dispatch [::period/fetch {:model-id (:id model) :user-id user-id} %])
+              :dayOccupancy (clj->js (h/camel-case-keys @(subscribe [::occupancy/result])))
+              :onOccupancyDayChange #(dispatch [::occupancy/fetch {:model-id (:id model) :user-id user-id} %])
               :onSubmit on-submit
               :onValidate on-validate
               :modelData (h/camel-case-keys model)
