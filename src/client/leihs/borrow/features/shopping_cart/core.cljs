@@ -735,7 +735,9 @@
         :title (t :order-success-notification/title)
         :onConfirm on-confirm}
        [:<>
-        [:p.fw-bold (t :order-success-notification/order-submitted)]
+        [:p.fw-bold (if (some #{"IN_APPROVAL" :IN_APPROVAL} (:refined-rental-state rental))
+                      (t :order-success-notification/order-submitted)
+                      (t :order-success-notification/order-approved))]
         [:> UI/Components.Design.Section {:title title}
          [:p (when (not= title purpose) [:p.preserve-linebreaks purpose])]
          [:p.small (rentals/rental-summary-text rental)]]]])))
