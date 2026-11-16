@@ -39,12 +39,11 @@
           initial-changes (ch/init tx entitlements pool-id)
           reservations (q/running-reservations tx model-id pool-id exclude-res-ids)
           group-ids (concat [:general] (q/get-user-group-ids tx user-id))
-          now (ch/now-in-time-zone tx)
           day (ch/local-date date)]
       (for [[start-time end-time] (steps pool-hours)]
         (let [period (ch/period day day [start-time end-time])
               changes (->> reservations
-                           (filter #(ch/conflicts-with-period? period % now))
+                           (filter #(ch/conflicts-with-period? period %))
                            (reduce #(ch/extend-with %1 %2 model model-group-ids)
                                    initial-changes))
               inner-changes (ch/between changes day day)]

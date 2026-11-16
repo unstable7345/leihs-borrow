@@ -47,10 +47,10 @@
   "How many of `child-ids` (items of the model) are taken in `period`: the
   ones assigned to competing reservations, plus the reservations not assigned
   yet that the items outside the packages can not take."
-  [tx model-id pool-id child-ids period exclude-res-ids now]
+  [tx model-id pool-id child-ids period exclude-res-ids]
   (let [competing (->> (q/running-reservations tx model-id pool-id exclude-res-ids)
                        (filter #(competing-statuses (some-> % :status name)))
-                       (filter #(ch/conflicts-with-period? period % now)))
+                       (filter #(ch/conflicts-with-period? period %)))
         child-ids (set child-ids)
         assigned (->> competing
                       (filter #(child-ids (:item_id %)))
@@ -71,14 +71,13 @@
   (let [children (lendable-children tx package-model-id pool-id)]
     (when (seq children)
       (let [period (ch/period start-date end-date (some->> window (mapv ch/->local-time)))
-            now (ch/now-in-time-zone tx)
             quantities (->> children
                             (group-by :model_id)
                             (keep (fn [[model-id items]]
                                     (let [n (missing-quantity tx model-id pool-id
                                                               (map :id items)
                                                               period
-                                                              exclude-res-ids now)]
+                                                              exclude-res-ids)]
                                       (when (pos? n) [model-id n]))))
                             (into {}))]
         (when (seq quantities)
