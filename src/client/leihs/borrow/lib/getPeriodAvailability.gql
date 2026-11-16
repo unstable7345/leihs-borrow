@@ -2,6 +2,7 @@ query getPeriodAvailability(
   $modelId: UUID!
   $userId: UUID
   $poolIds: [UUID!]
+  $poolId: UUID!
   $startDate: Date!
   $endDate: Date!
   $startTime: Time
@@ -17,5 +18,19 @@ query getPeriodAvailability(
       endTime: $endTime
       excludeReservationIds: $excludeReservationIds
     )
+    missingPackageContents(
+      inventoryPoolId: $poolId
+      startDate: $startDate
+      endDate: $endDate
+      startTime: $startTime
+      endTime: $endTime
+      excludeReservationIds: $excludeReservationIds
+    ) {
+      quantity
+      model {
+        id
+        name
+      }
+    }
   }
 }

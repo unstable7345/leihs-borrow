@@ -337,6 +337,12 @@ const OrderPanel = ({
     timeSlot: activeTimes()
   })
 
+  // Items of the package missing in exactly the chosen period (when known)
+  const missingContents =
+    activeTimes() && periodAvailability && isSamePeriod(periodAvailability, stateForCallbacks())
+      ? periodAvailability.missingContents || []
+      : []
+
   function handleCalendarNavigate(newDate) {
     onCalendarNavigate({ date: newDate })
   }
@@ -584,6 +590,16 @@ const OrderPanel = ({
                         <Warning className="mt-2">{msg}</Warning>
                       </React.Fragment>
                     ))}
+                  {/* items of the package lent on their own (e.g. a synth of a room lent to teachers) */}
+                  {missingContents.length > 0 && (
+                    <Warning className="mt-2" data-test-id="missing-contents">
+                      {t(label, 'missing-contents', locale, {
+                        items: missingContents
+                          .map(({ name, quantity }) => (quantity > 1 ? `${quantity} × ${name}` : name))
+                          .join(', ')
+                      })}
+                    </Warning>
+                  )}
                   <div className="mt-3">
                     <div className="form-check form-switch d-inline-block">
                       <input

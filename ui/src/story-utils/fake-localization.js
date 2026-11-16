@@ -25,6 +25,7 @@ export const orderPanelTexts = {
         'Tippe auf einen freien Abschnitt, um dann abzuholen, und auf einen späteren, um die Reservation bis dahin zu verlängern.'
     },
     'occupancy-free': { 'de-CH': 'Frei' },
+    'missing-contents': { 'de-CH': 'In diesem Zeitraum fehlt (ausgeliehen): {items}.' },
     'occupancy-busy': { 'de-CH': 'Belegt' },
     'occupancy-selected': { 'de-CH': 'Deine Reservation' },
     'occupancy-available': { 'de-CH': '{amount, number} verfügbar' },

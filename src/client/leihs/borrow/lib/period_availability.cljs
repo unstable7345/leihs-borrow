@@ -1,7 +1,8 @@
 (ns leihs.borrow.lib.period-availability
   "The available quantity of a model for exactly a period by the hour (asked
   for by the OrderPanel through onPeriodChange), which the availability by
-  day can not tell (e.g. from 16:00 to 10:00 the next day)."
+  day can not tell (e.g. from 16:00 to 10:00 the next day), and the items
+  of the packages of the model that will be missing then."
   (:require
    [leihs.borrow.lib.helpers :as h]
    [leihs.borrow.lib.re-frame :refer [reg-event-db reg-event-fx reg-sub]]
@@ -33,6 +34,7 @@
                    {:modelId model-id
                     :userId user-id
                     :poolIds [poolId]
+                    :poolId poolId
                     :startDate (h/date-format-day startDate)
                     :endDate (h/date-format-day endDate)
                     :startTime (:startTime request)
@@ -47,7 +49,14 @@
    (if (and (= request (::request db)) (not errors))
      (assoc db ::result (assoc request
                                :quantity
-                               (-> data :model :available-quantity-in-date-range)))
+                               (-> data :model :available-quantity-in-date-range)
+                               ;; items of a package lent on their own (e.g.
+                               ;; a synth of a buc lent to teachers) missing
+                               :missingContents
+                               (->> data :model :missing-package-contents
+                                    (map (fn [{:keys [quantity model]}]
+                                           {:name (:name model)
+                                            :quantity quantity})))))
      db)))
 
 (reg-event-db

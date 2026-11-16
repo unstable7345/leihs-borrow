@@ -86,7 +86,9 @@ const OrderPanelPropTypes = {
     endDate: PropTypes.instanceOf(Date),
     startTime: PropTypes.string,
     endTime: PropTypes.string,
-    quantity: PropTypes.number
+    quantity: PropTypes.number,
+    /** items of the packages of the model lent on their own and missing in the period */
+    missingContents: PropTypes.arrayOf(PropTypes.shape({ name: PropTypes.string, quantity: PropTypes.number }))
   }),
   /** callback, when the period by the hour changes (argument: state incl. `timeSlot`) */
   onPeriodChange: PropTypes.func,

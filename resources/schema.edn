@@ -226,6 +226,15 @@
                                            :type (non-null (list (non-null :OccupancyStep)))
                                            :description "In a pool with reservations by the hour: for each step of 30 minutes of the day within its hours, the quantity still available for exactly that step. Empty for other pools and past days."
                                            :resolve :day-occupancy}
+                            :missingPackageContents {:args {:inventoryPoolId {:type (non-null :UUID)}
+                                                            :startDate {:type (non-null :Date)}
+                                                            :endDate {:type (non-null :Date)}
+                                                            :startTime {:type :Time}
+                                                            :endTime {:type :Time}
+                                                            :excludeReservationIds {:type (list (non-null :UUID))}}
+                                                     :type (non-null (list (non-null :PackageContent)))
+                                                     :description "For a package model: the items of its packages lent on their own (e.g. to teachers) that may be missing in the period, by model. Empty for other models and past periods."
+                                                     :resolve :missing-package-contents}
                             :totalReservableQuantities {:type (list :TotalReservableQuantity)
                                                         :resolve :total-reservable-quantities}
                             :images {:type (list :Image)
