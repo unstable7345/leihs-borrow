@@ -90,7 +90,11 @@
          (sql/where [:in :inventory_pools.id pool-ids]))
        (sql/where [:= :items.retired nil])
        (sql/where [:= :items.is_borrowable true])
-       (sql/where [:= :items.parent_id nil]))))
+       ;; a borrowable item in a package only through a named group entitled
+       ;; to its model (e.g. teachers)
+       (sql/where [:or
+                   [:= :items.parent_id nil]
+                   [:<> :ents.entitlement_group_id nil]]))))
 
 (defn reservable?
   [{{tx :tx} :request user-id ::target-user/id :as context}

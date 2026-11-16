@@ -342,10 +342,18 @@
 ;; An order of a pool is approved on submission when the pool wants it, every
 ;; reservation is by the hour and starts and ends on the same day (the
 ;; material does not leave the premises overnight) and the user is not
-;; suspended there. Whole days and multi-day reservations still need approval.
+;; suspended there. Whole days and multi-day reservations still need approval,
+;; and so do models with borrowable items in a package (e.g. a synth mounted in
+;; a buc, lent to teachers): staff decides when the package is booked too.
 (defn- auto-approve? [tx user-id pool-id reservation-ids]
   (-> [(str "SELECT ip.auto_approve_same_day
                AND bool_and(r.start_time IS NOT NULL AND r.start_date = r.end_date)
+               AND NOT bool_or(EXISTS (SELECT 1 FROM items i
+                                       WHERE i.model_id = r.model_id
+                                         AND i.inventory_pool_id = ip.id
+                                         AND i.parent_id IS NOT NULL
+                                         AND i.is_borrowable
+                                         AND i.retired IS NULL))
                AND NOT EXISTS (SELECT 1 FROM suspensions s
                                WHERE s.inventory_pool_id = ip.id
                                  AND s.user_id = ?

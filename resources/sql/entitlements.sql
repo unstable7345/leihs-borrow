@@ -21,6 +21,9 @@ WHERE pwg.entitlement_group_id IN (
 -- (as hashmaps) will be returned
 -- :name all-entitlements :? :*
 -- :doc Get entitlements including the general group (for user, models and pools)
+-- Borrowable items in a package (e.g. a synth mounted in a buc) are lent on
+-- their own only to the named groups entitled to the model (e.g. teachers),
+-- never to the general group.
 SELECT *
 FROM (
   SELECT model_id,
@@ -36,7 +39,8 @@ FROM (
   SELECT model_id,
          inventory_pool_id,
          NULL AS entitlement_group_id,
-         (count(i.id) - coalesce(
+         least(count(i.id) FILTER (WHERE i.parent_id IS NULL),
+         count(i.id) - coalesce(
            (SELECT sum(quantity)
             FROM entitlements AS es
             INNER JOIN entitlement_groups ON entitlement_groups.id = es.entitlement_group_id
@@ -48,7 +52,6 @@ FROM (
   FROM items AS i
   WHERE i.retired IS NULL
     AND i.is_borrowable = TRUE
-    AND i.parent_id IS NULL
     --~ (when (:and-model-ids-2 params) ":snip:and-model-ids-2")
     --~ (when (:and-pool-ids-2 params) ":snip:and-pool-ids-2")
   GROUP BY i.inventory_pool_id,
