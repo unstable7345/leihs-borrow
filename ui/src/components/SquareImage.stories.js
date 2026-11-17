@@ -78,3 +78,30 @@ export const className = () => {
     </div>
   )
 }
+
+const imgSrcScene = require('../../static/example-images/scene-square.png')
+
+export const scenePhotos = () => {
+  return (
+    <div>
+      <h1>SquareImage</h1>
+      <p className="text-muted">
+        A scene photo (its corners are not light, e.g. a render of a room) is shown without margin and without the light
+        frame of dark mode. It fills a box of about its shape; in a wider box it is shown whole over a blurred copy of
+        itself. Product photos (light background) keep the margin.
+      </p>
+      <div className="d-flex gap-3 mb-4" style={{ maxWidth: '420px' }}>
+        <div className="flex-fill">
+          <SquareImage imgSrc={imgSrcScene} className="rounded border" />
+          <div className="small mt-1">Scene</div>
+        </div>
+        <div className="flex-fill">
+          <SquareImage imgSrc={imgSrcPortrait} className="rounded border" />
+          <div className="small mt-1">Product</div>
+        </div>
+      </div>
+      <SquareImage imgSrc={imgSrcScene} className="rounded square-container--not-too-high mb-3" />
+      <SquareImage imgSrc={imgSrcPortrait} className="rounded square-container--not-too-high" />
+    </div>
+  )
+}

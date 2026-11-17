@@ -76,6 +76,13 @@ input.selectish-feedback-icon {
   }
 }
 
+// Blurred copy behind a scene photo shown whole (see SquareImage)
+.square-image__backdrop {
+  inset: 0;
+  filter: blur(24px);
+  transform: scale(1.2);
+}
+
 .object-center {
   -o-object-position: center;
   object-position: center;

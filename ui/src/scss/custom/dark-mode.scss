@@ -93,6 +93,15 @@
     }
   }
 
+  // Scene photos (a room, a stage...) fill their frame: no light frame, no blending
+  .square-container--scene {
+    background-color: var(--bs-body-bg);
+
+    img {
+      mix-blend-mode: normal;
+    }
+  }
+
   // photo carousel arrows sit on the white photo: keep their light look
   .slide-button.btn-secondary {
     --bs-btn-color: #{$black};
