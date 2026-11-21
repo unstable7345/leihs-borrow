@@ -434,19 +434,40 @@
                        (mails/send-submitted tx order settings)))))))
       (get-one-by-id tx user-id uuid))))
 
+;; A customer can cancel an order while it waits for approval and also once it
+;; is approved, as long as nothing of it has been handed over yet and it has
+;; not expired. Canceling frees the items assigned to it; the pools that had
+;; approved it get a notification so nobody prepares the material.
 (defn cancel
-  [{{tx :tx} :request user-id ::target-user/id} {:keys [id]} _]
+  [{{tx :tx settings :settings after-tx-hooks* :after-tx-hooks*} :request
+    user-id ::target-user/id}
+   {:keys [id]} _]
   (let [customer-order (get-one-by-id tx user-id id)
-        pool-orders (pool-orders tx id)]
+        pool-orders (pool-orders tx id)
+        reservations (when (seq pool-orders)
+                       (-> (sql/select :status :end_date)
+                           (sql/from :reservations)
+                           (sql/where [:in :order_id (map :id pool-orders)])
+                           sql-format
+                           (->> (jdbc-query tx))))]
     (when-not (:is_customer_order customer-order)
       (throw (ex-info "The order is not a customer order." {})))
-    (when-not (->> pool-orders (map :state) (every? #{"submitted"}))
-      (throw (ex-info "Some pool orders don't have submitted state." {})))
+    (when-not (->> pool-orders (map :state) (every? #{"submitted" "approved"}))
+      (throw (ex-info "Only orders in approval or approved can be canceled." {})))
+    (when-not (->> reservations (map :status) (every? #{"submitted" "approved"}))
+      (throw (ex-info "Part of the order has already been handed over." {})))
+    (when (some #(past-date? (:end_date %)) reservations)
+      (throw (ex-info "The order has expired." {})))
     (-> (sql/update :reservations)
-        (sql/set {:status "canceled"})
+        (sql/set {:status "canceled" :item_id nil})
         (sql/where [:in :order_id (map :id pool-orders)])
         sql-format
         (->> (jdbc/execute! tx)))
+    (doseq [order (filter #(= "approved" (:state %)) pool-orders)]
+      (swap! after-tx-hooks* conj
+             (fn [_ _]
+               (jdbc/with-transaction+options [tx (db/get-ds)]
+                 (mails/send-canceled tx order settings)))))
     (-> (sql/update :orders)
         (sql/set {:state "canceled"})
         (sql/where [:= :customer_order_id id])

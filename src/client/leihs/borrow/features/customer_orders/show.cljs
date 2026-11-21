@@ -132,7 +132,9 @@
        [:<>
         [:p.fw-bold title]
         [:p (when (not= title purpose) [:p.preserve-linebreaks purpose])]
-        [:p.small (rentals/rental-summary-text rental)]]])))
+        [:p.small (rentals/rental-summary-text rental)]
+        (when (some #{"TO_PICKUP"} (:fulfillment-states rental))
+          [:p.small (t :cancellation-dialog/approved-info)])]])))
 
 (defn view []
   (let [now (js/Date.)
@@ -147,7 +149,11 @@
 
         rental-title  (or (:title rental) (:purpose rental))
 
-        is-cancelable? (= ["IN_APPROVAL"] (:fulfillment-states rental))
+        ;; In approval or approved, with nothing handed over and not expired
+        ;; (the server checks the same in orders/cancel).
+        is-cancelable? (let [states (set (:fulfillment-states rental))]
+                         (and (seq states)
+                              (every? #{"IN_APPROVAL" "TO_PICKUP"} states)))
         is-repeatable? (seq reservations)
         contracts (map :node (get-in rental [:contracts :edges]))
         user-data @(subscribe [::current-user/user-data])

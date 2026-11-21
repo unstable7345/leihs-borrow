@@ -1,5 +1,6 @@
 (ns leihs.borrow.mails
   (:require
+   [clojure.string :as str]
    [next.jdbc :as jdbc :refer [execute!] :rename {execute! jdbc-execute!}]
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
    [honey.sql :refer [format] :rename {format sql-format}]
@@ -149,6 +150,81 @@
 ;; For orders approved on submission (see orders/auto-approve?).
 (defn send-approved [tx order settings]
   (send-to-customer tx order settings "approved"))
+
+;; Notification to the pool when a customer cancels an order it had already
+;; approved. Written here rather than as a mail template, since it is an
+;; internal notice for the staff and needs no per-pool wording.
+(def ^:private canceled-texts
+  {"ca" {:subject "Comanda cancel·lada: %s"
+         :intro "%s ha cancel·lat una comanda que ja estava aprovada. Els articles queden lliures i no cal preparar-los."
+         :purpose "Finalitat" :items "Articles" :link "Veure la comanda"}
+   "es" {:subject "Pedido cancelado: %s"
+         :intro "%s canceló un pedido que ya estaba aprobado. Los artículos quedan libres y no hace falta prepararlos."
+         :purpose "Finalidad" :items "Artículos" :link "Ver el pedido"}
+   "de" {:subject "Bestellung storniert: %s"
+         :intro "%s hat eine bereits genehmigte Bestellung storniert. Die Gegenstände sind wieder frei und müssen nicht vorbereitet werden."
+         :purpose "Zweck" :items "Gegenstände" :link "Bestellung ansehen"}
+   "fr" {:subject "Commande annulée : %s"
+         :intro "%s a annulé une commande déjà approuvée. Les objets sont à nouveau libres et n'ont pas besoin d'être préparés."
+         :purpose "Motif" :items "Objets" :link "Voir la commande"}
+   "en" {:subject "Order canceled: %s"
+         :intro "%s canceled an order that had already been approved. The items are free again and need not be prepared."
+         :purpose "Purpose" :items "Items" :link "View the order"}})
+
+(defn send-canceled [tx order settings]
+  (let [inventory-pool (->> order :inventory_pool_id (pools/get-by-id tx))]
+    (when (:deliver_received_order_emails inventory-pool)
+      (try
+        (let [locale (-> (lang/default tx) :locale str)
+              texts (get canceled-texts (subs locale 0 (min 2 (count locale)))
+                         (get canceled-texts "en"))
+              user (users/get-by-id tx (:user_id order))
+              delegated (when (delegation? user)
+                          (some->> (orders/delegated-user-id tx (:id order))
+                                   (users/get-by-id tx)))
+              who (if delegated
+                    (str (:name delegated) " (" (:name user) ")")
+                    (:name user))
+              reservations (-> (sql/select :r.quantity :r.start_date :r.end_date
+                                           [time-slot-sql :time_slot]
+                                           [:m.name :model_name])
+                               (sql/from [:reservations :r])
+                               (sql/join [:models :m] [:= :r.model_id :m.id])
+                               (sql/where [:= :r.order_id (:id order)])
+                               (sql/order-by :r.start_date :r.start_time :m.name)
+                               sql-format
+                               (->> (jdbc-query tx)))
+              date (fn [d] (.format (java.time.format.DateTimeFormatter/ofPattern "dd/MM/yyyy")
+                                    (java.time.LocalDate/parse (str d))))
+              line (fn [{:keys [quantity start_date end_date time_slot model_name]}]
+                     (str "- " quantity " × " model_name ": " (date start_date)
+                          (cond time_slot (str " " time_slot)
+                                (not= (str start_date) (str end_date)) (str " – " (date end_date)))))
+              purpose (:purpose order)
+              order-url (str (:external_base_url settings) "/manage/"
+                             (:id inventory-pool) "/orders/" (:id order) "/edit")
+              body (str (format (:intro texts) who) "\n\n"
+                        (when-not (str/blank? purpose)
+                          (str (:purpose texts) ": " purpose "\n\n"))
+                        (:items texts) ":\n"
+                        (str/join "\n" (map line reservations)) "\n\n"
+                        (:link texts) ": " order-url
+                        (when-let [signature (:email_signature settings)]
+                          (str "\n\n" signature)))
+              address (or (:email inventory-pool) (:smtp_default_from_address settings))
+              to-address (or (notification-email tx (:id inventory-pool)) address)]
+          (-> (sql/insert-into :emails)
+              (sql/values [{:inventory_pool_id (:id inventory-pool)
+                            :from_address address
+                            :to_address to-address
+                            :subject (format (:subject texts) who)
+                            :body body
+                            :template "canceled"
+                            :source_pool_id (:id inventory-pool)}])
+              sql-format
+              (->> (jdbc-execute! tx))))
+        (catch Exception e
+          (log-mail-failure (:id inventory-pool) e))))))
 
 (comment (let [tx (db/get-ds)
                order (-> (sql/select :*)

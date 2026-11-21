@@ -790,7 +790,12 @@
                                       other {dans # jours}}"}
                   :cancellation-dialog {:title {:de-CH "Bestellung stornieren" :en-GB "Cancel order" :es "Cancelar pedido" :ca "Cancel·lar comanda" :fr-CH "Annuler la commande"}
                                         :confirm {:de-CH "Stornieren" :en-GB "Cancel order" :es "Cancelar pedido" :ca "Cancel·lar comanda" :fr-CH "Annuler la commande"}
-                                        :cancel {:de-CH "Abbrechen" :en-GB "Abort" :es "Volver" :ca "Tornar" :fr-CH "Abandonner"}}
+                                        :cancel {:de-CH "Abbrechen" :en-GB "Abort" :es "Volver" :ca "Tornar" :fr-CH "Abandonner"}
+                                        :approved-info {:de-CH "Die Gegenstände sind bereits für dich reserviert. Beim Stornieren werden sie für andere Personen freigegeben."
+                                                        :en-GB "The items are already reserved for you. Canceling frees them for other people."
+                                                        :es "Los artículos ya están reservados para ti. Al cancelar, quedan libres para otras personas."
+                                                        :ca "Els articles ja estan reservats per a tu. En cancel·lar, queden lliures per a altres persones."
+                                                        :fr-CH "Les objets sont déjà réservés pour toi. En annulant, ils sont libérés pour d'autres personnes."}}
                   :repeat-order {:repeat-action-label {:de-CH "Bestellung wiederholen" :en-GB "Repeat order" :es "Repetir pedido" :ca "Repetir comanda" :fr-CH "Répéter la commande"}
                                  :dialog {:title {:de-CH "Gegenstände hinzufügen" :en-GB "Add items" :es "Agregar artículos" :ca "Afegir articles" :fr-CH "Ajouter des articles"}
                                           :info {:de-CH "{count, plural,
