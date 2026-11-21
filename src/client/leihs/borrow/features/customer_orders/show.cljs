@@ -202,7 +202,7 @@
            (when (or is-cancelable? is-repeatable?)
              [:> UI/Components.Design.ActionButtonGroup
               (when is-cancelable?
-                [:button.btn.btn-secondary {:onClick #(dispatch [::open-cancellation-dialog rental-id])} (t :cancel-action-label)])
+                [:button.btn.btn-danger {:onClick #(dispatch [::open-cancellation-dialog rental-id])} (t :cancel-action-label)])
               (when is-repeatable?
                 [repeat-order/repeat-button rental])])]]
 
