@@ -8,7 +8,7 @@
 
    [leihs.core.db :as db]
    [leihs.core.languages :as lang]
-   [leihs.core.mails :refer [get-tmpl log-mail-failure]]
+   [leihs.core.mails :refer [log-mail-failure]]
    [leihs.core.settings :refer [settings]]
    [wet.core :as wet]
    [leihs.borrow.resources.delegations :refer [delegation?]]
@@ -22,6 +22,26 @@
 ;; mail templates can use {% if l.time_slot %}.
 (def ^:private time-slot-sql
   [:raw "CASE WHEN r.start_time IS NULL THEN NULL ELSE to_char(r.start_time, 'HH24:MI') || '–' || to_char(r.end_time, 'HH24:MI') END"])
+
+;; The mail template, with its format ('text' or 'markdown'), which the mail
+;; carries so the mail service knows whether to send it as HTML.
+(defn- get-tmpl [tx name pool-id lang-locale]
+  (-> (sql/select :subject :body :format)
+      (sql/from :mail_templates)
+      (sql/where [:= :name name])
+      (sql/where [:= :inventory_pool_id pool-id])
+      (sql/where [:= :language_locale lang-locale])
+      sql-format
+      (->> (jdbc-query tx))
+      first))
+
+(defn- mail-format [tmpl]
+  (if (= "markdown" (:format tmpl)) "markdown" "text"))
+
+;; Where the customer sees the order in borrow.
+(defn- rental-url [settings order]
+  (str (:external_base_url settings) "/borrow/rentals/"
+       (or (:customer_order_id order) (:id order))))
 
 ;; Where the "received order" notifications of a pool go: its notification
 ;; email when it has one, else its own email, which is also the sender.
@@ -82,6 +102,7 @@
                                          :subject (:subject tmpl)
                                          :body email-body
                                          :template "received"
+                                         :format (mail-format tmpl)
                                          :source_pool_id (:id pool)}])
                            sql-format
                            (->> (jdbc-execute! tx))))))
@@ -127,7 +148,8 @@
                                                        :reservations reservations
                                                        :comment nil
                                                        :purpose purpose
-                                                       :order_url order-url}
+                                                       :order_url order-url
+                                                       :rental_url (rental-url settings order)}
                                               :filters {}})
                       to-address (or (:email target-user) (:secondary_email target-user))
                       from-address (or (:email inventory-pool) (:smtp_default_from_address settings))]
@@ -138,6 +160,7 @@
                                     :subject (:subject tmpl)
                                     :body email-body
                                     :template template
+                                    :format (mail-format tmpl)
                                     :source_pool_id (:id inventory-pool)}])
                       sql-format
                       (->> (jdbc-execute! tx))))))
@@ -197,18 +220,21 @@
               date (fn [d] (.format (java.time.format.DateTimeFormatter/ofPattern "dd/MM/yyyy")
                                     (java.time.LocalDate/parse (str d))))
               line (fn [{:keys [quantity start_date end_date time_slot model_name]}]
-                     (str "- " quantity " × " model_name ": " (date start_date)
+                     (str "- **" quantity " × " model_name "** · " (date start_date)
                           (cond time_slot (str " " time_slot)
                                 (not= (str start_date) (str end_date)) (str " – " (date end_date)))))
               purpose (:purpose order)
               order-url (str (:external_base_url settings) "/manage/"
                              (:id inventory-pool) "/orders/" (:id order) "/edit")
-              body (str (format (:intro texts) who) "\n\n"
-                        (when-not (str/blank? purpose)
-                          (str (:purpose texts) ": " purpose "\n\n"))
-                        (:items texts) ":\n"
+              ;; Markdown, sent as HTML by the mail service
+              subject (format (:subject texts) who)
+              body (str "# " subject "\n\n"
+                        (format (:intro texts) who) "\n\n"
+                        "### " (:items texts) "\n\n"
                         (str/join "\n" (map line reservations)) "\n\n"
-                        (:link texts) ": " order-url
+                        (when-not (str/blank? purpose)
+                          (str "### " (:purpose texts) "\n" purpose "\n\n"))
+                        "[" (:link texts) "](" order-url ")"
                         (when-let [signature (:email_signature settings)]
                           (str "\n\n" signature)))
               address (or (:email inventory-pool) (:smtp_default_from_address settings))
@@ -217,9 +243,10 @@
               (sql/values [{:inventory_pool_id (:id inventory-pool)
                             :from_address address
                             :to_address to-address
-                            :subject (format (:subject texts) who)
+                            :subject subject
                             :body body
                             :template "canceled"
+                            :format "markdown"
                             :source_pool_id (:id inventory-pool)}])
               sql-format
               (->> (jdbc-execute! tx))))
