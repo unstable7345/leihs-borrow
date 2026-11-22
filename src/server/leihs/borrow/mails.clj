@@ -234,9 +234,7 @@
                         (str/join "\n" (map line reservations)) "\n\n"
                         (when-not (str/blank? purpose)
                           (str "### " (:purpose texts) "\n" purpose "\n\n"))
-                        "[" (:link texts) "](" order-url ")"
-                        (when-let [signature (:email_signature settings)]
-                          (str "\n\n" signature)))
+                        "[" (:link texts) "](" order-url ")")
               address (or (:email inventory-pool) (:smtp_default_from_address settings))
               to-address (or (notification-email tx (:id inventory-pool)) address)]
           (-> (sql/insert-into :emails)
