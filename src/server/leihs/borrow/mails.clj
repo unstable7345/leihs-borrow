@@ -228,7 +228,7 @@
                              (:id inventory-pool) "/orders/" (:id order) "/edit")
               ;; Markdown, sent as HTML by the mail service
               subject (format (:subject texts) who)
-              body (str "# " subject "\n\n"
+              body (str "<!-- red -->\n# " subject "\n\n"
                         (format (:intro texts) who) "\n\n"
                         "### " (:items texts) "\n\n"
                         (str/join "\n" (map line reservations)) "\n\n"
